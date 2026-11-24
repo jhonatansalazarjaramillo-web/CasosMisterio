@@ -1,0 +1,2857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misterio Interactivo — Caso 2: Galería Real Aurum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Paleta Terror Gótico Victoriano & Realeza Antigua (Azul Navy Abisal + Dorado + Carmesí) */
+      --bg-abyss: #040811;
+      --bg-navy-dark: #070e1c;
+      --bg-navy-panel: #0c162b;
+      --bg-navy-card: #11203d;
+      --bg-navy-hover: #182c52;
+      --bg-bubble-left: #101e38;
+      --bg-bubble-right: #053d33;
+
+      --gold-primary: #d4af37;
+      --gold-light: #f3d06b;
+      --gold-dim: rgba(212, 175, 55, 0.34);
+      --gold-border: rgba(212, 175, 55, 0.24);
+
+      --crimson-blood: #7f1d1d;
+      --crimson-glow: rgba(185, 28, 28, 0.48);
+      --emerald-royal: #00a884;
+      --emerald-hover: #028a6d;
+      --sapphire-royal: #1d4ed8;
+      --amber-royal: #b45309;
+
+      --text-ivory: #f1ece1;
+      --text-muted: #8f9bb3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-abyss);
+      color: var(--text-ivory);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      /* Patrón damasco victoriano sombrío en Azul Navy */
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05), transparent 55%),
+        radial-gradient(circle at 25px 25px, rgba(212, 175, 55, 0.03) 2px, transparent 2.5px),
+        radial-gradient(circle at 75px 75px, rgba(212, 175, 55, 0.03) 2px, transparent 2.5px);
+      background-size: 100% 100%, 100px 100px, 100px 100px;
+    }
+
+    /* ================= CAPAS DE TERROR GÓTICO (NIEBLA, VIÑETA Y RELÁMPAGO) ================= */
+    .horror-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+      background: radial-gradient(circle at center, transparent 48%, rgba(2, 4, 10, 0.84) 100%);
+    }
+
+    .fog-layer {
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.24;
+      background:
+        radial-gradient(ellipse at 25% 35%, rgba(148, 163, 184, 0.16), transparent 52%),
+        radial-gradient(ellipse at 75% 65%, rgba(30, 58, 138, 0.22), transparent 58%);
+      animation: fogDrift 24s ease-in-out infinite alternate;
+    }
+
+    @keyframes fogDrift {
+      0% { transform: translate(-3%, -2%) scale(1); }
+      50% { transform: translate(3%, 2%) scale(1.06); }
+      100% { transform: translate(-2%, 3%) scale(1.02); }
+    }
+
+    /* Destello de relámpago sincronizado con rayo.mp3 */
+    .lightning-flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 45;
+      background: radial-gradient(circle at 50% 15%, rgba(224, 242, 254, 0.42), rgba(147, 197, 253, 0.15) 60%, transparent 100%);
+      opacity: 0;
+    }
+
+    .lightning-flash.flash-active {
+      animation: lightningStrike 1.15s ease-out forwards;
+    }
+
+    @keyframes lightningStrike {
+      0% { opacity: 0; }
+      6% { opacity: 0.92; }
+      14% { opacity: 0.12; }
+      22% { opacity: 0.78; }
+      38% { opacity: 0.08; }
+      46% { opacity: 0.45; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes eerieFlicker {
+      0%, 100% { opacity: 1; }
+      48% { opacity: 0.97; }
+      50% { opacity: 0.82; }
+      52% { opacity: 0.99; }
+      84% { opacity: 0.96; }
+      85% { opacity: 0.78; }
+      86% { opacity: 1; }
+    }
+
+    /* ================= BARRA SUPERIOR REAL ================= */
+    .top-nav {
+      height: 48px;
+      background: linear-gradient(180deg, #091224 0%, #060c18 100%);
+      border-bottom: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      flex-shrink: 0;
+      z-index: 30;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 700;
+      font-size: 14.5px;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+    }
+
+    .brand-badge {
+      background: rgba(127, 29, 29, 0.25);
+      color: #fca5a5;
+      border: 1px solid rgba(220, 38, 38, 0.4);
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-top-action {
+      background: var(--bg-navy-card);
+      color: var(--text-ivory);
+      border: 1px solid var(--gold-border);
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-top-action:hover {
+      background: var(--bg-navy-hover);
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    .btn-top-action.evidence-ready {
+      background: rgba(212, 175, 55, 0.16);
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.22);
+    }
+
+    .btn-top-action.audio-on {
+      border-color: rgba(220, 38, 38, 0.55);
+      color: #fecaca;
+    }
+
+    /* ================= MENÚ DE BIENVENIDA MINIMALISTA E INTRIGANTE ================= */
+    .welcome-overlay {
+      position: fixed;
+      inset: 48px 0 0 0;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(127, 29, 29, 0.16), transparent 60%),
+        radial-gradient(circle at 50% 50%, rgba(16, 30, 58, 0.94), #03060d 100%);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .welcome-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.02);
+    }
+
+    .royal-dossier-card {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      background: linear-gradient(165deg, #0b1529 0%, #060b16 100%);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 14px;
+      padding: 42px 36px 38px;
+      text-align: center;
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(127, 29, 29, 0.18),
+        inset 0 0 0 4px #060b16,
+        inset 0 0 0 5px rgba(212, 175, 55, 0.25);
+      animation: dossierReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+    }
+
+    @keyframes dossierReveal {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Telarañas decorativas en las esquinas */
+    .cobweb-corner {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      pointer-events: none;
+      opacity: 0.26;
+    }
+    .cobweb-tl { top: 4px; left: 4px; }
+    .cobweb-tr { top: 4px; right: 4px; transform: scaleX(-1); }
+
+    .dossier-top-tag {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 11.5px;
+      letter-spacing: 2.6px;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .ornament-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto 20px;
+      color: var(--gold-primary);
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .ornament-line {
+      height: 1px;
+      width: 72px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+    }
+
+    .dossier-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 27px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #ffffff;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+      margin-bottom: 18px;
+    }
+
+    .dossier-intrigue {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 19px;
+      font-style: italic;
+      line-height: 1.55;
+      color: #d8d2c5;
+      max-width: 470px;
+      margin: 0 auto 28px;
+    }
+
+    .wax-seal {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #991b1b, #450a0a 75%);
+      border: 2px solid rgba(212, 175, 55, 0.55);
+      box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.75),
+        inset 0 2px 6px rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-open-dossier {
+      background: linear-gradient(135deg, #b88924 0%, #8c6212 100%);
+      color: #ffffff;
+      border: 1px solid var(--gold-light);
+      border-radius: 8px;
+      padding: 13px 32px;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 20px rgba(212, 175, 55, 0.25);
+      transition: transform 0.18s ease, filter 0.2s ease;
+    }
+
+    .btn-open-dossier:hover {
+      filter: brightness(1.12);
+      transform: translateY(-2px);
+    }
+
+    /* ================= LAYOUT PRINCIPAL ================= */
+    .main-layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      z-index: 5;
+    }
+
+    /* PANEL IZQUIERDO: CONTACTOS */
+    .sidebar {
+      width: 268px;
+      background: linear-gradient(180deg, #091224 0%, #060c18 100%);
+      border-right: 1px solid var(--gold-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 15px 16px;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold-light);
+      border-bottom: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-count {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--gold-light);
+      border: 1px solid var(--gold-border);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .contacts-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .contact-btn {
+      width: 100%;
+      background-color: var(--bg-navy-panel);
+      color: var(--text-ivory);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 9px 11px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      animation: slideInContact 0.3s ease;
+    }
+
+    @keyframes slideInContact {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .contact-btn:hover {
+      background-color: var(--bg-navy-hover);
+      border-color: var(--gold-border);
+    }
+
+    .contact-btn.active {
+      background: linear-gradient(90deg, #16294d 0%, #0f1d38 100%);
+      border-color: var(--gold-primary);
+      box-shadow: inset 3px 0 0 var(--gold-primary);
+    }
+
+    .contact-mini-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #070d19;
+      border: 1.5px solid var(--gold-primary);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .contact-mini-avatar svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .contact-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .contact-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-ivory);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .contact-role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      box-shadow: 0 0 8px var(--gold-primary);
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 11px 14px;
+      border-top: 1px solid var(--gold-border);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      background: rgba(4, 8, 17, 0.6);
+    }
+
+    /* PANEL DERECHO */
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: transparent;
+    }
+
+    .chat-header {
+      background: linear-gradient(90deg, #0b1528 0%, #08101f 100%);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gold-border);
+      flex-shrink: 0;
+    }
+
+    .chat-header-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-header-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .mood-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold-light);
+      border: 1px solid var(--gold-border);
+    }
+
+    .mood-tag.sinister {
+      background: rgba(127, 29, 29, 0.35);
+      color: #fca5a5;
+      border-color: rgba(220, 38, 38, 0.55);
+    }
+
+    /* ================= ESCENARIO VISUAL VICTORIANO SOMBRÍO ================= */
+    .character-stage {
+      position: relative;
+      height: 198px;
+      background:
+        radial-gradient(circle at 13% 52%, rgba(212, 175, 55, 0.11), transparent 52%),
+        radial-gradient(circle at 85% 20%, rgba(127, 29, 29, 0.14), transparent 55%),
+        linear-gradient(180deg, #0d1930 0%, #050a14 100%);
+      border-bottom: 1px solid var(--gold-border);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      animation: eerieFlicker 9s infinite;
+    }
+
+    /* Grieta gótica sutil en el cristal del escenario */
+    .stage-glass-crack {
+      position: absolute;
+      right: 18px;
+      top: 0;
+      width: 110px;
+      height: 110px;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+
+    .stage-character-box {
+      position: relative;
+      width: 156px;
+      height: 180px;
+      margin-left: 16px;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+
+    .stage-character-box.entering {
+      animation: characterPop 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .stage-character-box.aura-crimson .portrait-svg {
+      filter: drop-shadow(0 6px 18px rgba(185, 28, 28, 0.65));
+    }
+
+    @keyframes characterPop {
+      0% { opacity: 0; transform: translateY(16px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .portrait-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.8));
+      transition: filter 0.3s ease;
+    }
+
+    .char-body-group {
+      transform-origin: 80px 175px;
+      animation: idleBreathe 3.6s ease-in-out infinite;
+    }
+
+    @keyframes idleBreathe {
+      0%, 100% { transform: translateY(0px) scaleY(1); }
+      50% { transform: translateY(-2px) scaleY(1.01); }
+    }
+
+    .stage-character-box.is-speaking .char-body-group {
+      animation: speakBounce 0.42s ease-in-out infinite;
+    }
+
+    @keyframes speakBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .char-eyelids {
+      transform-origin: 80px 84px;
+      animation: eyeBlink 4.8s infinite;
+    }
+
+    @keyframes eyeBlink {
+      0%, 94%, 100% { opacity: 0; }
+      96%, 98% { opacity: 1; }
+    }
+
+    .mouth-talking {
+      display: none;
+      transform-origin: 80px 112px;
+    }
+
+    .stage-character-box.is-speaking .mouth-idle {
+      display: none;
+    }
+
+    .stage-character-box.is-speaking .mouth-talking {
+      display: block;
+      animation: mouthTalk 0.21s ease-in-out infinite alternate;
+    }
+
+    @keyframes mouthTalk {
+      0% { transform: scaleY(0.45) scaleX(0.95); }
+      100% { transform: scaleY(1.25) scaleX(1.05); }
+    }
+
+    /* CUADRO DE DIÁLOGO JUNTO A LA BOCA */
+    .mouth-speech-wrapper {
+      position: relative;
+      flex: 1;
+      align-self: center;
+      margin: 12px 20px 12px 10px;
+      z-index: 3;
+      max-width: 730px;
+    }
+
+    .mouth-speech-bubble {
+      position: relative;
+      background: linear-gradient(145deg, #101e38 0%, #091224 100%);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+      min-height: 78px;
+      max-height: 162px;
+      overflow-y: auto;
+      cursor: pointer;
+      transition: border-color 0.25s ease;
+    }
+
+    .mouth-speech-bubble.suspect-theme {
+      border-color: rgba(185, 28, 28, 0.72);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 18px rgba(127, 29, 29, 0.22);
+    }
+
+    .mouth-speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -13px;
+      top: 52px;
+      width: 0;
+      height: 0;
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      border-right: 13px solid var(--gold-primary);
+    }
+
+    .mouth-speech-bubble.suspect-theme::before {
+      border-right-color: rgba(185, 28, 28, 0.75);
+    }
+
+    .mouth-speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 53px;
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 11px solid #101e38;
+    }
+
+    .speech-speaker-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      gap: 8px;
+    }
+
+    .speech-speaker-name {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: var(--gold-light);
+    }
+
+    .mouth-speech-bubble.suspect-theme .speech-speaker-name {
+      color: #fca5a5;
+    }
+
+    .speech-hint {
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .speech-text {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-ivory);
+      white-space: pre-line;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background-color: var(--gold-light);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: cursorBlink 0.7s infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    /* ================= HISTORIAL DE CHAT ================= */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg-row {
+      display: flex;
+      width: 100%;
+      animation: msgFadeUp 0.25s ease;
+    }
+
+    @keyframes msgFadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row.left { justify-content: flex-start; }
+    .msg-row.right { justify-content: flex-end; }
+
+    .bubble {
+      max-width: 78%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      line-height: 1.48;
+      white-space: pre-line;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38);
+    }
+
+    .bubble.left {
+      background-color: var(--bg-bubble-left);
+      color: var(--text-ivory);
+      border: 1px solid rgba(212, 175, 55, 0.16);
+      border-top-left-radius: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .bubble.left:hover {
+      background-color: #152647;
+      border-color: var(--gold-primary);
+    }
+
+    .bubble.right {
+      background-color: var(--bg-bubble-right);
+      color: #ecfdf5;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-top-right-radius: 2px;
+    }
+
+    .bubble-sender {
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .replay-chip {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    /* TARJETAS DE FOTOS EN EL CHAT */
+    .evidence-gallery-msg {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .photo-thumb-card {
+      background: #060b16;
+      border: 1px solid var(--gold-primary);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .photo-thumb-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+    }
+
+    .photo-thumb-svg {
+      width: 100%;
+      height: 82px;
+      display: block;
+      background: #03060d;
+    }
+
+    .photo-thumb-caption {
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-align: center;
+      border-top: 1px solid var(--gold-border);
+    }
+
+    /* ================= BOTONES DE ACCIÓN ================= */
+    .interaction-area {
+      background: linear-gradient(180deg, #0b1528 0%, #070e1c 100%);
+      padding: 12px 18px;
+      border-top: 1px solid var(--gold-border);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .interaction-label {
+      font-size: 11.5px;
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .buttons-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .action-btn {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 7px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.12s ease, filter 0.15s ease;
+      line-height: 1.35;
+    }
+
+    .action-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .action-btn.center {
+      text-align: center;
+      flex: 1;
+      min-width: 155px;
+    }
+
+    .btn-green { background-color: var(--emerald-royal); }
+    .btn-gold { background: linear-gradient(135deg, #b88924, #8c6212); border-color: var(--gold-light); }
+    .btn-blue { background-color: #1e40af; }
+    .btn-orange { background-color: #b45309; }
+    .btn-red { background-color: #991b1b; }
+    .btn-question { background-color: #152647; border-color: var(--gold-border); }
+    .btn-cancel { background-color: #334155; }
+
+    .no-actions-text {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 6px 0;
+    }
+
+    /* ================= MODAL DE FOTOS DE ESCENA DEL CRIMEN ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 5, 12, 0.9);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .scene-modal-card {
+      width: 100%;
+      max-width: 860px;
+      background: linear-gradient(165deg, #0d182e 0%, #060b16 100%);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 14px;
+      box-shadow: 0 28px 75px rgba(0, 0, 0, 0.92);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 92vh;
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      background: #091224;
+      border-bottom: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+
+    .modal-close-btn {
+      background: rgba(127, 29, 29, 0.45);
+      color: #fecaca;
+      border: 1px solid rgba(220, 38, 38, 0.5);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .photo-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #070e1c;
+      border-bottom: 1px solid var(--gold-border);
+      flex-wrap: wrap;
+    }
+
+    .photo-tab-btn {
+      background: var(--bg-navy-card);
+      color: var(--text-muted);
+      border: 1px solid var(--gold-border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .photo-tab-btn.active {
+      background: rgba(212, 175, 55, 0.18);
+      color: var(--gold-light);
+      border-color: var(--gold-primary);
+    }
+
+    .scene-canvas-wrapper {
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    .scene-instruction-bar {
+      font-size: 12px;
+      color: var(--gold-light);
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--gold-border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      text-align: center;
+    }
+
+    .scene-photo-frame {
+      width: 100%;
+      max-width: 760px;
+      border: 2px solid var(--gold-primary);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #03060d;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
+    }
+
+    .scene-photo-frame svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Objetos clicables dentro de las fotos */
+    .clickable-evidence {
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+
+    .clickable-evidence:hover {
+      filter: drop-shadow(0 0 8px rgba(243, 208, 107, 0.95)) brightness(1.18);
+    }
+
+    .evidence-pulse-ring {
+      fill: none;
+      stroke: #f3d06b;
+      stroke-width: 2;
+      animation: ringPulse 2s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes ringPulse {
+      0% { opacity: 0.9; transform: scale(0.95); }
+      70% { opacity: 0.2; transform: scale(1.08); }
+      100% { opacity: 0.9; transform: scale(0.95); }
+    }
+
+    .scene-photo-desc {
+      font-size: 13px;
+      color: #cbd5e1;
+      text-align: center;
+      max-width: 720px;
+      line-height: 1.45;
+    }
+
+    /* ================= VENTANA DE INSPECCIÓN DE OBJETO 360° ================= */
+    .object-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 3, 8, 0.92);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      backdrop-filter: blur(5px);
+    }
+
+    .object-modal-backdrop.open {
+      display: flex;
+    }
+
+    .object-inspect-card {
+      width: 100%;
+      max-width: 540px;
+      background: linear-gradient(165deg, #101d38 0%, #060b16 100%);
+      border: 2px solid var(--gold-primary);
+      border-radius: 14px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95), 0 0 35px rgba(212, 175, 55, 0.2);
+      overflow: hidden;
+      animation: dossierReveal 0.25s ease;
+    }
+
+    /* ARRIBA: NOMBRE DEL OBJETO */
+    .object-modal-top {
+      padding: 16px 20px;
+      background: #091224;
+      border-bottom: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .object-modal-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    /* CENTRO: VISOR 360° INTERACTIVO ALREDEDOR */
+    .object-360-stage {
+      position: relative;
+      height: 250px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.14), transparent 65%),
+        #040812;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      border-bottom: 1px solid var(--gold-border);
+      overflow: hidden;
+    }
+
+    .object-360-stage:active {
+      cursor: grabbing;
+    }
+
+    .object-360-badge {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-light);
+      background: rgba(9, 18, 36, 0.85);
+      border: 1px solid var(--gold-border);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .object-angle-label {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      background: rgba(9, 18, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .object-360-render {
+      width: 220px;
+      height: 175px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s linear;
+    }
+
+    .object-360-render svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.85));
+    }
+
+    .object-360-controls {
+      position: absolute;
+      bottom: 10px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 10px;
+    }
+
+    .angle-btn {
+      background: #0c162b;
+      color: var(--text-ivory);
+      border: 1px solid var(--gold-border);
+      border-radius: 5px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .angle-btn:hover, .angle-btn.active {
+      background: rgba(212, 175, 55, 0.22);
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    /* ABAJO: DESCRIPCIÓN DETALLADA DEL OBJETO */
+    .object-modal-desc-box {
+      padding: 18px 22px;
+      background: #08101f;
+    }
+
+    .object-desc-heading {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold-primary);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .object-desc-text {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-ivory);
+      white-space: pre-line;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.25); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.45); }
+
+    @media (max-width: 760px) {
+      .sidebar { width: 195px; }
+      .character-stage { height: 175px; }
+      .stage-character-box { width: 120px; height: 145px; margin-left: 8px; }
+      .evidence-gallery-msg { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       ARCHIVOS DE AUDIO DE TORMENTA (Coloca lluvia.mp3 y rayo.mp3 junto al HTML)
+       ========================================================================= -->
+  <audio id="audioLluvia" src="lluvia.mp3" loop preload="auto"></audio>
+  <audio id="audioRayo" src="rayo.mp3" preload="auto"></audio>
+
+  <!-- CAPAS AMBIENTALES DE TERROR GÓTICO -->
+  <div class="fog-layer"></div>
+  <div class="horror-vignette"></div>
+  <div class="lightning-flash" id="lightningOverlay"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="top-nav">
+    <div class="brand-title">
+      <span>⚜️ Misterio Interactivo</span>
+      <span class="brand-badge">Capítulo II</span>
+    </div>
+    <div class="top-controls">
+      <button class="btn-top-action" id="btnScenePhotosTop" onclick="openScenePhotosModal(0)" style="display:none;">📷 Escena (3)</button>
+      <button class="btn-top-action audio-on" id="btnToggleAudio" onclick="toggleStormAudio()" title="Activar o silenciar lluvia y truenos">🔊 Tormenta: ON</button>
+      <button class="btn-top-action" onclick="showWelcomeOverlay()">📜 Expediente</button>
+      <button class="btn-top-action" onclick="resetGame()">↻ Reiniciar</button>
+    </div>
+  </header>
+
+  <!-- MENÚ DE BIENVENIDA MINIMALISTA CON INTRIGA -->
+  <section class="welcome-overlay" id="welcomeOverlay">
+    <div class="royal-dossier-card">
+      <!-- Telarañas decorativas -->
+      <svg class="cobweb-corner cobweb-tl" viewBox="0 0 100 100">
+        <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L75,75 M0,0 L92,38 M0,0 L38,92" stroke="#cbd5e1" stroke-width="1"/>
+        <path d="M22,0 Q20,20 0,22 M46,0 Q40,40 0,46 M72,0 Q62,62 0,72 M95,0 Q82,82 0,95" stroke="#cbd5e1" stroke-width="0.9" fill="none"/>
+      </svg>
+      <svg class="cobweb-corner cobweb-tr" viewBox="0 0 100 100">
+        <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L75,75 M0,0 L92,38 M0,0 L38,92" stroke="#cbd5e1" stroke-width="1"/>
+        <path d="M22,0 Q20,20 0,22 M46,0 Q40,40 0,46 M72,0 Q62,62 0,72 M95,0 Q82,82 0,95" stroke="#cbd5e1" stroke-width="0.9" fill="none"/>
+      </svg>
+
+      <div class="dossier-top-tag">Expediente Real #02</div>
+      <div class="ornament-divider">
+        <span class="ornament-line"></span>
+        <span>❖</span>
+        <span class="ornament-line"></span>
+      </div>
+
+      <h1 class="dossier-title">El Último Lote en la Galería Real Aurum</h1>
+
+      <p class="dossier-intrigue">
+        "Una subasta privada a puerta cerrada bajo la tormenta, una bóveda hermética sin salida y cuatro invitados aristócratas cuyas coartadas esconden una imposibilidad mortal."
+      </p>
+
+      <div class="wax-seal">II</div>
+
+      <button class="btn-open-dossier" onclick="startInvestigation()">
+        Abrir Expediente →
+      </button>
+    </div>
+  </section>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="main-layout">
+    <!-- PANEL IZQUIERDO: CONTACTOS -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span>Contactos</span>
+        <span class="sidebar-count" id="contactsCounter">1 activo</span>
+      </div>
+      <div class="contacts-list" id="contactsList"></div>
+      <div class="sidebar-footer" id="sidebarStatus">
+        Habla con Jhonatan esposo mío para conocer los detalles del caso y pedir las pruebas.
+      </div>
+    </aside>
+
+    <!-- PANEL DERECHO -->
+    <main class="chat-panel">
+      <div class="chat-header">
+        <div>
+          <div class="chat-header-title">
+            <span id="headerName">Jhonatan esposo mío 🕵️‍♂️</span>
+            <span class="chat-header-subtitle" id="headerRole">Compañero de investigación</span>
+          </div>
+        </div>
+        <div class="mood-tag" id="headerMood">Enlace activo</div>
+      </div>
+
+      <!-- ESCENARIO VISUAL DE PERSONAJES + CUADRO JUNTO A LA BOCA -->
+      <section class="character-stage">
+        <svg class="stage-glass-crack" viewBox="0 0 120 120">
+          <path d="M 85 0 L 72 28 L 88 46 L 64 74 L 70 98 M 72 28 L 48 36 M 88 46 L 108 58 M 64 74 L 42 82"
+                stroke="#cbd5e1" stroke-width="1.2" fill="none" />
+        </svg>
+
+        <div class="stage-character-box" id="stageCharacterBox"></div>
+
+        <div class="mouth-speech-wrapper">
+          <div class="mouth-speech-bubble" id="mouthSpeechBubble" onclick="finishTypewriterNow()" title="Haz clic para completar el texto al instante">
+            <div class="speech-speaker-row">
+              <span class="speech-speaker-name" id="speechSpeakerName">JHONATAN ESPOSO MÍO</span>
+              <span class="speech-hint" id="speechHint">Hablando...</span>
+            </div>
+            <div class="speech-text" id="speechText"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORIAL DE CHAT -->
+      <section class="messages-area" id="messagesArea"></section>
+
+      <!-- BOTONES DE INTERACCIÓN -->
+      <section class="interaction-area" id="interactionArea"></section>
+    </main>
+  </div>
+
+  <!-- MODAL 1: FOTOS DE LA ESCENA DEL CRIMEN -->
+  <div class="modal-backdrop" id="scenePhotosModal" onclick="if(event.target===this) closeScenePhotosModal()">
+    <div class="scene-modal-card">
+      <div class="modal-header">
+        <span class="modal-title" id="modalPhotoTitle">📷 Placa Forense #01 — Interior de la Bóveda</span>
+        <button class="modal-close-btn" onclick="closeScenePhotosModal()">✕ Cerrar</button>
+      </div>
+      <div class="photo-tabs">
+        <button class="photo-tab-btn active" id="photoTab0" onclick="selectScenePhoto(0)">Placa #01: Interior Bóveda</button>
+        <button class="photo-tab-btn" id="photoTab1" onclick="selectScenePhoto(1)">Placa #02: Pasillo y Panel Gas</button>
+        <button class="photo-tab-btn" id="photoTab2" onclick="selectScenePhoto(2)">Placa #03: Cristal Blindado</button>
+      </div>
+      <div class="scene-canvas-wrapper">
+        <div class="scene-instruction-bar">
+          🔍 Haz clic directamente sobre cualquier objeto o el cuerpo en la fotografía para inspeccionarlo alrededor (360°)
+        </div>
+        <div class="scene-photo-frame" id="scenePhotoFrame"></div>
+        <p class="scene-photo-desc" id="scenePhotoDesc"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: INSPECCIÓN DETALLADA DEL OBJETO ALREDEDOR (360°) -->
+  <div class="object-modal-backdrop" id="objectInspectModal" onclick="if(event.target===this) closeObjectModal()">
+    <div class="object-inspect-card">
+      <!-- ARRIBA: NOMBRE DEL OBJETO -->
+      <div class="object-modal-top">
+        <span class="object-modal-title" id="objectModalTitle">Nombre del Objeto</span>
+        <button class="modal-close-btn" onclick="closeObjectModal()">✕ Volver a la foto</button>
+      </div>
+
+      <!-- CENTRO: VISOR 360° ALREDEDOR -->
+      <div class="object-360-stage" id="object360Stage">
+        <span class="object-360-badge">↻ Arrastra para girar 360°</span>
+        <span class="object-angle-label" id="objectAngleLabel">Vista: Frente (0°)</span>
+        <div class="object-360-render" id="object360Render"></div>
+        <div class="object-360-controls" onclick="event.stopPropagation()">
+          <button class="angle-btn active" id="angBtn0" onclick="setObjectAngle(0)">Frente (0°)</button>
+          <button class="angle-btn" id="angBtn90" onclick="setObjectAngle(90)">Perfil Der. (90°)</button>
+          <button class="angle-btn" id="angBtn180" onclick="setObjectAngle(180)">Reverso (180°)</button>
+          <button class="angle-btn" id="angBtn270" onclick="setObjectAngle(270)">Perfil Izq. (270°)</button>
+          <button class="angle-btn" id="angBtnAuto" onclick="toggleAutoSpin()">⟳ Auto</button>
+        </div>
+      </div>
+
+      <!-- ABAJO: DESCRIPCIÓN DEL OBJETO -->
+      <div class="object-modal-desc-box">
+        <div class="object-desc-heading">Reporte Forense del Objeto</div>
+        <div class="object-desc-text" id="objectModalDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       SISTEMA DE AUDIO DE TORMENTA (lluvia.mp3 + rayo.mp3 + Efectos)
+       ========================================================================= */
+    const audioLluvia = document.getElementById("audioLluvia");
+    const audioRayo = document.getElementById("audioRayo");
+    let stormAudioEnabled = true;
+    let lightningLoopTimer = null;
+    let audioCtx = null;
+
+    function initWebAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+
+    /* Inicia el bucle continuo de lluvia.mp3 */
+    function startRainLoop() {
+      if (!stormAudioEnabled || !audioLluvia) return;
+      audioLluvia.volume = 0.42;
+      audioLluvia.play().catch(() => {
+        /* El navegador esperará a la primera interacción del usuario */
+      });
+    }
+
+    function stopRainLoop() {
+      if (audioLluvia) {
+        audioLluvia.pause();
+      }
+    }
+
+    /* Dispara el relámpago visual Y reproduce rayo.mp3 sincronizado */
+    function triggerLightningAndThunder() {
+      const overlay = document.getElementById("lightningOverlay");
+      if (overlay) {
+        overlay.classList.remove("flash-active");
+        void overlay.offsetWidth; // Reinicia la animación CSS
+        overlay.classList.add("flash-active");
+      }
+
+      if (stormAudioEnabled && audioRayo) {
+        try {
+          audioRayo.pause();
+          audioRayo.currentTime = 0; // Permite reproducir rayo.mp3 cada vez que alumbra
+          audioRayo.volume = 0.85;
+          audioRayo.play().catch(() => {});
+        } catch (e) {}
+      }
+    }
+
+    /* Programa relámpagos y truenos aleatorios durante la partida */
+    function scheduleRandomLightning() {
+      if (lightningLoopTimer) clearTimeout(lightningLoopTimer);
+      const nextDelay = 15000 + Math.random() * 14000; // Entre 15 y 29 segundos
+      lightningLoopTimer = setTimeout(() => {
+        triggerLightningAndThunder();
+        scheduleRandomLightning();
+      }, nextDelay);
+    }
+
+    function toggleStormAudio() {
+      stormAudioEnabled = !stormAudioEnabled;
+      const btn = document.getElementById("btnToggleAudio");
+      if (stormAudioEnabled) {
+        btn.textContent = "🔊 Tormenta: ON";
+        btn.classList.add("audio-on");
+        initWebAudio();
+        startRainLoop();
+        triggerLightningAndThunder();
+      } else {
+        btn.textContent = "🔇 Tormenta: OFF";
+        btn.classList.remove("audio-on");
+        stopRainLoop();
+        if (audioRayo) audioRayo.pause();
+      }
+    }
+
+    /* Tictac sutil de máquina de escribir antigua */
+    function playTypeTick() {
+      if (!stormAudioEnabled) return;
+      initWebAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(520 + Math.random() * 140, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.014, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.025);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.025);
+    }
+
+    /* =========================================================================
+       RETRATOS ILUSTRADOS VICTORIANOS Y DE REALEZA SOMBRÍA (SVG ANIMADOS)
+       ========================================================================= */
+    function getPortraitSVG(characterKey, expression = "neutral") {
+      const browTilt = {
+        neutral: { left: 0, right: 0 },
+        serious: { left: 6, right: -6 },
+        defensive: { left: -7, right: 7 },
+        nervous: { left: -8, right: 8 },
+        confident: { left: -3, right: 4 }
+      }[expression] || { left: 0, right: 0 };
+
+      const mouthIdlePath = {
+        neutral: "M 72 112 Q 80 115 88 112",
+        serious: "M 72 114 L 88 114",
+        defensive: "M 72 115 Q 80 111 88 115",
+        nervous: "M 73 115 Q 80 112 87 115",
+        confident: "M 72 111 Q 81 116 89 110"
+      }[expression] || "M 72 112 Q 80 115 88 112";
+
+      const commonHeadAndFace = (skin, hairBack, hairFront, eyeColor, extraFace = "") => `
+        ${hairBack}
+        <path d="M 67 123 L 67 146 L 93 146 L 93 123 Z" fill="${skin}" filter="brightness(0.84)" />
+        <ellipse cx="52" cy="88" rx="5" ry="9" fill="${skin}" filter="brightness(0.9)" />
+        <ellipse cx="108" cy="88" rx="5" ry="9" fill="${skin}" filter="brightness(0.9)" />
+        <!-- Rostro pálido victoriano -->
+        <path d="M 54 66 C 54 46, 106 46, 106 66 L 106 94 C 106 114, 92 126, 80 126 C 68 126, 54 114, 54 94 Z" fill="${skin}" />
+        <!-- Sombra gótica lateral -->
+        <path d="M 82 48 C 98 50, 106 60, 106 72 L 106 94 C 106 112, 93 125, 80 126 C 90 116, 94 100, 94 82 C 94 65, 89 54, 82 48 Z" fill="#060c18" opacity="0.22" />
+        <!-- Ojeras sombrías -->
+        <path d="M 62 89 Q 68 92 74 89" stroke="#1e293b" stroke-width="1.6" opacity="0.45" fill="none" />
+        <path d="M 86 89 Q 92 92 98 89" stroke="#1e293b" stroke-width="1.6" opacity="0.45" fill="none" />
+        <!-- Cejas -->
+        <path d="M 61 75 Q 68 72 74 75" stroke="#1f1610" stroke-width="2.6" stroke-linecap="round" fill="none"
+              transform="rotate(${browTilt.left} 68 74)" />
+        <path d="M 86 75 Q 92 72 99 75" stroke="#1f1610" stroke-width="2.6" stroke-linecap="round" fill="none"
+              transform="rotate(${browTilt.right} 92 74)" />
+        <!-- Ojos -->
+        <g class="char-eyes">
+          <ellipse cx="68" cy="84" rx="5.2" ry="4.4" fill="#f8fafc" />
+          <circle cx="68.5" cy="84" r="2.8" fill="${eyeColor}" />
+          <circle cx="69.4" cy="83" r="1" fill="#ffffff" />
+          <ellipse cx="92" cy="84" rx="5.2" ry="4.4" fill="#f8fafc" />
+          <circle cx="91.5" cy="84" r="2.8" fill="${eyeColor}" />
+          <circle cx="92.4" cy="83" r="1" fill="#ffffff" />
+        </g>
+        <!-- Párpados -->
+        <g class="char-eyelids">
+          <rect x="61" y="79" width="14" height="10" rx="4" fill="${skin}" />
+          <rect x="85" y="79" width="14" height="10" rx="4" fill="${skin}" />
+        </g>
+        <!-- Nariz -->
+        <path d="M 80 86 L 78 98 L 83 99" stroke="rgba(60, 35, 25, 0.5)" stroke-width="2" stroke-linecap="round" fill="none" />
+        ${extraFace}
+        <!-- Boca en reposo -->
+        <path class="mouth-idle" d="${mouthIdlePath}" stroke="#6b1d24" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        <!-- Boca hablando -->
+        <g class="mouth-talking">
+          <ellipse cx="80" cy="113" rx="7.5" ry="5.5" fill="#450a0a" stroke="#6b1d24" stroke-width="1.6" />
+          <path d="M 75 110 Q 80 112 85 110" stroke="#f1f5f9" stroke-width="1.6" stroke-linecap="round" fill="none" />
+          <ellipse cx="80" cy="116" rx="4.2" ry="2.2" fill="#be123c" />
+        </g>
+        ${hairFront}
+      `;
+
+      const characters = {
+        /* JHONATAN ESPOSO MÍO: Levita victoriana azul navy, ascot dorado y lupa real */
+/* JHONATAN ESPOSO MÍO: Traje azul navy entallado, hombros anchos, más cabello y gafas */
+        Jhonatan: `
+          <svg class="portrait-svg" viewBox="0 0 160 185">
+            <g class="char-body-group">
+              <!-- Hombros anchos y torso atlético con traje azul navy -->
+              <path d="M 8 185 C 10 140, 34 132, 80 132 C 126 132, 150 140, 152 185 Z" fill="#0f244a" stroke="#d4af37" stroke-width="1.2" />
+              <!-- Sombras pectorales y cintura entallada -->
+              <path d="M 32 142 Q 44 166 40 185 L 12 185 C 14 156, 20 146, 32 142 Z" fill="#091630" opacity="0.65" />
+              <path d="M 128 142 Q 116 166 120 185 L 148 185 C 146 156, 140 146, 128 142 Z" fill="#091630" opacity="0.65" />
+              <path d="M 56 156 Q 80 164 104 156" stroke="#081226" stroke-width="2" fill="none" opacity="0.55" />
+              <!-- Camisa blanca impecable y cuello firme -->
+              <path d="M 62 133 L 80 170 L 98 133 Z" fill="#f8fafc" />
+              <!-- Corbata azul marino oscuro con pisacorbatas dorado -->
+              <path d="M 76 139 L 84 139 L 86 177 L 80 184 L 74 177 Z" fill="#09152b" />
+              <rect x="75" y="156" width="10" height="2.4" rx="1" fill="#f3d06b" />
+              <!-- Solapas anchas estructuradas del traje azul navy -->
+              <path d="M 52 133 L 73 177 L 60 180 L 42 142 Z" fill="#17356b" stroke="#d4af37" stroke-width="0.85" />
+              <path d="M 108 133 L 87 177 L 100 180 L 118 142 Z" fill="#17356b" stroke="#d4af37" stroke-width="0.85" />
+              <!-- Pañuelo dorado de bolsillo -->
+              <polygon points="106,162 117,156 121,164" fill="#d4af37" />
+              ${commonHeadAndFace(
+                "#ecc09b",
+                /* Cabello posterior más abundante y con volumen */
+                `<path d="M 46 80 C 40 34, 120 34, 114 80 C 115 90, 110 94, 106 88 L 106 65 L 54 65 L 54 88 C 50 94, 45 90, 46 80 Z" fill="#181310" />`,
+                /* Flequillo y mechones con mayor volumen arriba */
+                `
+                  <path d="M 50 75 C 46 35, 92 29, 109 49 C 115 58, 113 69, 109 76 C 103 60, 94 55, 83 60 C 74 53, 63 55, 55 64 C 53 68, 52 72, 50 75 Z" fill="#181310" />
+                  <path d="M 61 45 Q 78 35 97 47" stroke="#2d231e" stroke-width="2" stroke-linecap="round" fill="none" />
+                `,
+                "#2b1d14",
+                /* Gafas elegantes con montura dorada y mandíbula marcada */
+                `
+                  <path d="M 60 105 Q 80 123 100 105" stroke="rgba(30,20,15,0.24)" stroke-width="3.5" fill="none" />
+                  <rect x="58" y="78" width="20" height="12" rx="3" fill="rgba(186, 230, 253, 0.14)" stroke="#d4af37" stroke-width="1.8" />
+                  <rect x="82" y="78" width="20" height="12" rx="3" fill="rgba(186, 230, 253, 0.14)" stroke="#d4af37" stroke-width="1.8" />
+                  <line x1="78" y1="83" x2="82" y2="83" stroke="#d4af37" stroke-width="1.8" />
+                  <line x1="53" y1="82" x2="58" y2="83" stroke="#d4af37" stroke-width="1.5" />
+                  <line x1="102" y1="83" x2="107" y2="82" stroke="#d4af37" stroke-width="1.5" />
+                  <line x1="61" y1="80" x2="65" y2="87" stroke="#ffffff" stroke-width="1" opacity="0.45" />
+                  <line x1="85" y1="80" x2="89" y2="87" stroke="#ffffff" stroke-width="1" opacity="0.45" />
+                `
+              )}
+            </g>
+          </svg>
+        `,
+
+        /* CAMILA: Dama restauradora victoriana, camafeo real y pañuelo coral */
+        Camila: `
+          <svg class="portrait-svg" viewBox="0 0 160 185">
+            <g class="char-body-group">
+              <path d="M 45 66 C 41 106, 45 142, 55 156 L 105 156 C 115 142, 119 106, 115 66 Z" fill="#3a2014" />
+              <!-- Peineta dorada victoriana -->
+              <path d="M 98 52 L 116 40 L 119 46 L 101 57 Z" fill="#d4af37" />
+              <path d="M 22 185 C 26 144, 48 137, 80 137 C 112 137, 134 144, 138 185 Z" fill="#102542" stroke="#d4af37" stroke-width="1.1" />
+              <path d="M 64 137 L 80 162 L 96 137 Z" fill="#f1ece1" />
+              <!-- Pañuelo de seda coral con camafeo -->
+              <path d="M 65 139 Q 80 152 95 139 L 87 160 L 73 160 Z" fill="#e11d48" />
+              <ellipse cx="80" cy="144" rx="4.5" ry="5.5" fill="#f3d06b" stroke="#7f1d1d" stroke-width="1.2" />
+              ${commonHeadAndFace(
+                "#f0c5a0",
+                ``,
+                `<path d="M 52 70 C 52 43, 108 43, 108 70 C 98 55, 82 54, 72 62 C 63 56, 56 62, 52 70 Z" fill="#3a2014" />`,
+                "#1e3a8a"
+              )}
+            </g>
+          </svg>
+        `,
+
+        /* MATEO: Aristócrata subastador con levita azul navy, solapa dorada y monóculo */
+        Mateo: `
+          <svg class="portrait-svg" viewBox="0 0 160 185">
+            <g class="char-body-group">
+              <path d="M 20 185 C 23 144, 46 137, 80 137 C 114 137, 137 144, 140 185 Z" fill="#0b172e" stroke="#d4af37" stroke-width="1.2" />
+              <path d="M 66 137 L 80 172 L 94 137 Z" fill="#f8fafc" />
+              <path d="M 75 142 L 85 142 L 84 168 L 80 174 L 76 168 Z" fill="#881337" />
+              <polygon points="103,161 114,155 118,164" fill="#d4af37" />
+              ${commonHeadAndFace(
+                "#e4b68e",
+                `<path d="M 51 74 C 50 43, 110 43, 109 74 Z" fill="#1f1b18" />`,
+                `<path d="M 52 67 C 55 41, 106 41, 108 67 C 100 53, 84 52, 68 59 C 60 56, 55 61, 52 67 Z" fill="#1f1b18" />`,
+                "#362519",
+                `
+                  <circle cx="92" cy="84" r="8.5" fill="none" stroke="#d4af37" stroke-width="1.8" />
+                  <path d="M 100.5 84 Q 108 112 104 144" stroke="#d4af37" stroke-width="1.1" fill="none" />
+                `
+              )}
+            </g>
+          </svg>
+        `,
+
+        /* ELENA: Condesa coleccionista con tiara real, gargantilla de rubíes y encaje oscuro */
+        Elena: `
+          <svg class="portrait-svg" viewBox="0 0 160 185">
+            <g class="char-body-group">
+              <path d="M 43 68 C 37 108, 41 144, 54 158 L 106 158 C 119 144, 123 108, 117 68 Z" fill="#d4b468" />
+              <!-- Tiara real dorada -->
+              <path d="M 62 52 L 68 42 L 74 49 L 80 37 L 86 49 L 92 42 L 98 52 Z" fill="#f3d06b" stroke="#8c6d1f" stroke-width="1" />
+              <circle cx="80" cy="45" r="2.2" fill="#dc2626" />
+              <!-- Vestido real azul noche y terciopelo -->
+              <path d="M 22 185 C 27 145, 50 138, 80 138 C 110 138, 133 145, 138 185 Z" fill="#091224" stroke="#d4af37" stroke-width="1.2" />
+              <path d="M 58 139 Q 80 165 102 139 L 102 185 L 58 185 Z" fill="#13223f" />
+              <!-- Gargantilla de rubíes y oro -->
+              <path d="M 64 141 Q 80 153 96 141" stroke="#d4af37" stroke-width="2.5" fill="none" />
+              <polygon points="80,146 85,153 80,160 75,153" fill="#dc2626" stroke="#f3d06b" stroke-width="1" />
+              ${commonHeadAndFace(
+                "#f5dcc6",
+                ``,
+                `<path d="M 51 72 C 51 42, 109 42, 109 72 C 100 54, 82 54, 70 64 C 60 58, 55 64, 51 72 Z" fill="#d4b468" />`,
+                "#065f46"
+              )}
+            </g>
+          </svg>
+        `,
+
+        /* DAMIÁN: Capitán de la Guardia Real con charreteras doradas y medalla */
+        Damián: `
+          <svg class="portrait-svg" viewBox="0 0 160 185">
+            <g class="char-body-group">
+              <path d="M 19 185 C 22 143, 46 137, 80 137 C 114 137, 138 143, 141 185 Z" fill="#0c182e" stroke="#d4af37" stroke-width="1.3" />
+              <path d="M 68 137 L 80 166 L 92 137 Z" fill="#060c18" />
+              <!-- Charreteras doradas de guardia real -->
+              <rect x="30" y="139" width="22" height="7" rx="3" fill="#d4af37" />
+              <rect x="108" y="139" width="22" height="7" rx="3" fill="#d4af37" />
+              <!-- Escudo real en el pecho -->
+              <polygon points="106,154 115,158 113,169 106,173 99,169 97,158" fill="#d4af37" stroke="#f3d06b" stroke-width="1" />
+              ${commonHeadAndFace(
+                "#cf9a74",
+                `<path d="M 52 72 C 52 44, 108 44, 108 72 Z" fill="#171412" />`,
+                `<path d="M 53 66 C 56 46, 104 46, 107 66 C 96 56, 64 56, 53 66 Z" fill="#171412" />`,
+                "#1c1917",
+                `<path d="M 67 106 Q 80 103 93 106 L 90 122 Q 80 126 70 122 Z" fill="rgba(20,16,14,0.52)" />`
+              )}
+            </g>
+          </svg>
+        `
+      };
+
+      return characters[characterKey] || characters.Jhonatan;
+    }
+
+    /* =========================================================================
+       OBJETOS INTERACTIVOS DE LA ESCENA DEL CRIMEN (Con vista 360° alrededor)
+       ========================================================================= */
+    const EVIDENCE_OBJECTS = {
+      cuerpo_julian: {
+        name: "Cuerpo de Julián Mendoza (Tasador Jefe)",
+        description:
+          "Hallado desplomado junto al atril de subasta dentro de la bóveda a las 11:15 p.m.\n\n" +
+          "• Signos forenses: Cianosis severa en labios y uñas por hipoxia aguda (falta total de oxígeno). No presenta heridas de bala ni golpes contundentes.\n" +
+          "• Reloj de bolsillo: Detenido exactamente a las 11:02 p.m. al desplomarse sobre el mármol frío, apenas dos minutos después de activarse el gas.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          const isBack = Math.cos(rad) < 0;
+          const tilt = Math.sin(rad) * 18;
+          return `
+            <svg viewBox="0 0 220 180">
+              <ellipse cx="110" cy="156" rx="76" ry="12" fill="rgba(0,0,0,0.65)" />
+              <g transform="translate(110,92) scale(${Math.abs(scaleX) < 0.2 ? 0.2 : scaleX}, 1) skewY(${tilt * 0.25}) translate(-110,-92)">
+                <!-- Silueta forense en suelo de mármol -->
+                <path d="M 42 135 Q 72 108 106 112 Q 144 114 176 138 Q 160 152 112 150 Q 64 150 42 135 Z"
+                      fill="${isBack ? '#0f172a' : '#1e293b'}" stroke="#d4af37" stroke-width="1.6" />
+                <!-- Cabeza pálida -->
+                <circle cx="${isBack ? 158 : 62}" cy="116" r="18" fill="${isBack ? '#292524' : '#cbd5e1'}" stroke="#94a3b8" stroke-width="1.2" />
+                ${!isBack ? `
+                  <path d="M 55 122 Q 62 125 69 122" stroke="#1e3a8a" stroke-width="2.5" fill="none" />
+                  <circle cx="118" cy="134" r="9" fill="#d4af37" stroke="#f3d06b" stroke-width="1.5" />
+                  <text x="118" y="137" text-anchor="middle" fill="#060c18" font-size="6.5" font-weight="bold">11:02</text>
+                ` : `
+                  <path d="M 75 124 L 145 124" stroke="#d4af37" stroke-width="1.4" stroke-dasharray="4,3" />
+                `}
+              </g>
+              <text x="110" y="22" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">
+                ${isBack ? "VISTA POSTERIOR — ABRIGO DE TERCIOPELO INTACTO" : "VISTA FRONTAL — CIANOSIS Y RELOJ DETENIDO (11:02)"}
+              </text>
+            </svg>
+          `;
+        }
+      },
+
+      cuadro_dama: {
+        name: "Óleo 'La Dama del Velo' (Lote #01)",
+        description:
+          "Pieza central de la subasta privada valorada en millones, reclamada como patrimonio familiar por la condesa Elena.\n\n" +
+          "• Anverso: Pintura al óleo del siglo XVIII sobre lienzo con marco dorado tallado.\n" +
+          "• Reverso (gíralo 180°): Contiene el sello de lacre de autenticidad recién certificado por Julián Mendoza indicando que la obra es legítima y debía entregarse al Museo Real.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          const isBack = scaleX < 0;
+          return `
+            <svg viewBox="0 0 220 180">
+              <ellipse cx="110" cy="162" rx="62" ry="9" fill="rgba(0,0,0,0.65)" />
+              <g transform="translate(110,90) scale(${Math.abs(scaleX) < 0.16 ? 0.16 : Math.abs(scaleX)}, 1) translate(-110,-90)">
+                <!-- Marco dorado -->
+                <rect x="52" y="24" width="116" height="132" rx="6" fill="#785312" stroke="#f3d06b" stroke-width="3" />
+                ${!isBack ? `
+                  <!-- Frente: Pintura -->
+                  <rect x="64" y="36" width="92" height="108" fill="#0f172a" />
+                  <circle cx="110" cy="74" r="18" fill="#e2c6a5" />
+                  <path d="M 84 144 Q 110 96 136 144 Z" fill="#1e3a8a" />
+                  <path d="M 88 58 Q 110 46 132 58 Q 134 94 110 104 Q 86 94 88 58 Z" fill="rgba(241,245,249,0.28)" />
+                ` : `
+                  <!-- Reverso: Bastidor de madera y sello real -->
+                  <rect x="64" y="36" width="92" height="108" fill="#3f2716" />
+                  <line x1="64" y1="90" x2="156" y2="90" stroke="#26160b" stroke-width="6" />
+                  <line x1="110" y1="36" x2="110" y2="144" stroke="#26160b" stroke-width="6" />
+                  <circle cx="110" cy="90" r="16" fill="#991b1b" stroke="#f3d06b" stroke-width="2" />
+                  <text x="110" y="93" text-anchor="middle" fill="#f3d06b" font-size="8" font-weight="bold">AUTÉNTICO</text>
+                `}
+              </g>
+              <text x="110" y="15" text-anchor="middle" fill="#f3d06b" font-size="10" font-weight="bold">
+                ${isBack ? "REVERSO — BASTIDOR Y SELLO DE AUTENTICIDAD" : "ANVERSO — ÓLEO 'LA DAMA DEL VELO'"}
+              </text>
+            </svg>
+          `;
+        }
+      },
+
+      difusor_gas: {
+        name: "Difusor de Gas Halón / Nitrógeno",
+        description:
+          "Válvula de descarga rápida instalada en la bóveda climatizada para extinguir incendios sin dañar obras de arte.\n\n" +
+          "• Estado: Boquillas cubiertas de escarcha blanca por la descompresión helada del gas activado a las 11:00 p.m.\n" +
+          "• Efecto: Desplaza el oxígeno en segundos causando pérdida de conocimiento inmediata y asfixia silenciosa.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const rotDeg = Math.sin(rad) * 35;
+          return `
+            <svg viewBox="0 0 220 180">
+              <ellipse cx="110" cy="160" rx="56" ry="9" fill="rgba(0,0,0,0.65)" />
+              <g transform="translate(110,90) rotate(${rotDeg}) translate(-110,-90)">
+                <rect x="96" y="18" width="28" height="36" fill="#334155" stroke="#94a3b8" stroke-width="1.5" />
+                <ellipse cx="110" cy="64" rx="44" ry="18" fill="#1e293b" stroke="#d4af37" stroke-width="2" />
+                <ellipse cx="110" cy="68" rx="34" ry="12" fill="#091224" />
+                <!-- Escarcha y niebla helada -->
+                <path d="M 76 74 Q 65 112 58 142 M 110 78 L 110 148 M 144 74 Q 155 112 162 142"
+                      stroke="#bae6fd" stroke-width="2.5" stroke-dasharray="5,4" fill="none" />
+                <circle cx="92" cy="68" r="3" fill="#e0f2fe" />
+                <circle cx="110" cy="70" r="3.5" fill="#e0f2fe" />
+                <circle cx="128" cy="68" r="3" fill="#e0f2fe" />
+              </g>
+              <text x="110" y="168" text-anchor="middle" fill="#bae6fd" font-size="10" font-weight="bold">
+                BOQUILLAS CON ESCARCHA DE DESCARGA ACTIVA
+              </text>
+            </svg>
+          `;
+        }
+      },
+
+      luminaria_apagada: {
+        name: "Luminaria Central de Bóveda (Sin Luz de Emergencia)",
+        description:
+          "Sistema eléctrico interior de la bóveda climatizada.\n\n" +
+          "• Dato crítico: Al activarse el protocolo de gas halón, el relé corta automáticamente el 100% de la energía eléctrica interior para evitar chispas.\n" +
+          "• Verificación técnica: Esta bóveda NO posee luz de emergencia interna; quedó en oscuridad absoluta desde las 11:00 p.m. (contradiciendo la excusa de Mateo).",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          return `
+            <svg viewBox="0 0 220 180">
+              <g transform="translate(110,88) scale(${Math.abs(scaleX) < 0.25 ? 0.25 : Math.abs(scaleX)}, 1) translate(-110,-88)">
+                <line x1="110" y1="12" x2="110" y2="52" stroke="#d4af37" stroke-width="4" />
+                <path d="M 68 78 Q 110 46 152 78 Z" fill="#1e293b" stroke="#d4af37" stroke-width="2" />
+                <circle cx="110" cy="86" r="14" fill="#0f172a" stroke="#475569" stroke-width="2" />
+                <line x1="92" y1="68" x2="128" y2="104" stroke="#ef4444" stroke-width="2.5" />
+                <line x1="128" y1="68" x2="92" y2="104" stroke="#ef4444" stroke-width="2.5" />
+              </g>
+              <text x="110" y="148" text-anchor="middle" fill="#fca5a5" font-size="10.5" font-weight="bold">
+                CORTE ELÉCTRICO TOTAL — 0% ILUMINACIÓN INTERNA
+              </text>
+            </svg>
+          `;
+        }
+      },
+
+      panel_gas: {
+        name: "Panel Exterior de Activación Manual del Gas",
+        description:
+          "Caja de emergencia ubicada en el pasillo exterior junto al marco de la bóveda.\n\n" +
+          "• Evidencia: El vidrio protector fue roto y la palanca bajada manualmente a las 11:00 p.m. exactas.\n" +
+          "• Huellas: La empuñadura fue limpiada con un paño fino antes de que regresara la señal de las cámaras a las 11:05 p.m.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          const isBack = scaleX < 0;
+          return `
+            <svg viewBox="0 0 220 180">
+              <g transform="translate(110,90) scale(${Math.abs(scaleX) < 0.18 ? 0.18 : Math.abs(scaleX)}, 1) translate(-110,-90)">
+                <rect x="64" y="24" width="92" height="132" rx="8" fill="#7f1d1d" stroke="#f3d06b" stroke-width="2.5" />
+                ${!isBack ? `
+                  <rect x="78" y="42" width="64" height="58" fill="#091224" stroke="#fca5a5" stroke-width="1.5" />
+                  <!-- Palanca bajada -->
+                  <rect x="103" y="64" width="14" height="34" rx="3" fill="#e2e8f0" />
+                  <circle cx="110" cy="96" r="8" fill="#ef4444" />
+                  <text x="110" y="124" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">GAS ON</text>
+                  <text x="110" y="140" text-anchor="middle" fill="#fca5a5" font-size="8.5">23:00:00 HRS</text>
+                ` : `
+                  <rect x="76" y="38" width="68" height="104" fill="#1e293b" />
+                  <circle cx="110" cy="90" r="18" fill="none" stroke="#d4af37" stroke-width="2" />
+                  <text x="110" y="93" text-anchor="middle" fill="#d4af37" font-size="8" font-weight="bold">RELÉ 24V</text>
+                `}
+              </g>
+            </svg>
+          `;
+        }
+      },
+
+      panuelo_camila: {
+        name: "Pañuelo de Seda Coral con Monograma 'C.R.'",
+        description:
+          "Hallado en el suelo del pasillo a dos metros del panel exterior.\n\n" +
+          "• Análisis: Pertenece a Camila (restauradora jefe). Presenta manchas secas de aceite de linaza usado en restauración de óleos, pero ningún rastro de vidrio pulverizado del panel.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const rot = Math.sin(rad) * 28;
+          const scaleX = Math.cos(rad);
+          return `
+            <svg viewBox="0 0 220 180">
+              <ellipse cx="110" cy="154" rx="64" ry="10" fill="rgba(0,0,0,0.65)" />
+              <g transform="translate(110,92) rotate(${rot}) scale(${Math.abs(scaleX) < 0.25 ? 0.25 : Math.abs(scaleX)}, 1) translate(-110,-92)">
+                <path d="M 52 54 Q 112 36 168 62 Q 154 114 164 142 Q 102 126 48 144 Q 62 96 52 54 Z"
+                      fill="#e11d48" stroke="#fda4af" stroke-width="1.8" />
+                <path d="M 68 74 Q 110 66 146 82" stroke="#be123c" stroke-width="2" fill="none" />
+                <text x="134" y="124" fill="#f3d06b" font-family="Cinzel, serif" font-size="13" font-weight="bold">C.R.</text>
+              </g>
+            </svg>
+          `;
+        }
+      },
+
+      cristal_blindado: {
+        name: "Cristal Blindado de Triple Cámara (100% Insonorizado)",
+        description:
+          "Ventanal de observación de 8 centímetros de espesor con cámaras de argón al vacío.\n\n" +
+          "• Especificación técnica: Aislamiento acústico total (0 decibelios transmitidos). Ningún golpe ni grito desde el interior puede escucharse afuera.\n" +
+          "• Cara interior (gíralo 180°): Muestra una huella pálida y marcas de uñas de Julián intentando pedir auxilio en absoluto silencio.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          const isBack = scaleX < 0;
+          return `
+            <svg viewBox="0 0 220 180">
+              <g transform="translate(110,90) scale(${Math.abs(scaleX) < 0.18 ? 0.18 : Math.abs(scaleX)}, 1) translate(-110,-90)">
+                <rect x="48" y="24" width="124" height="132" rx="6" fill="#0c1e38" stroke="#d4af37" stroke-width="3" />
+                <rect x="58" y="34" width="104" height="112" fill="rgba(56, 189, 248, 0.14)" stroke="#38bdf8" stroke-width="1" />
+                ${!isBack ? `
+                  <text x="110" y="76" text-anchor="middle" fill="#bae6fd" font-size="11" font-weight="bold">TRIPLE CAPA</text>
+                  <text x="110" y="94" text-anchor="middle" fill="#f3d06b" font-size="10" font-weight="bold">100% INSONORIZADO</text>
+                  <text x="110" y="112" text-anchor="middle" fill="#94a3b8" font-size="8.5">AISLAMIENTO ACÚSTICO TOTAL</text>
+                ` : `
+                  <!-- Huella de mano en el interior del vidrio -->
+                  <ellipse cx="110" cy="96" rx="14" ry="18" fill="rgba(226, 232, 240, 0.35)" />
+                  <line x1="98" y1="80" x2="95" y2="62" stroke="rgba(226,232,240,0.45)" stroke-width="4" stroke-linecap="round" />
+                  <line x1="106" y1="77" x2="105" y2="57" stroke="rgba(226,232,240,0.45)" stroke-width="4" stroke-linecap="round" />
+                  <line x1="114" y1="77" x2="115" y2="58" stroke="rgba(226,232,240,0.45)" stroke-width="4" stroke-linecap="round" />
+                  <line x1="122" y1="81" x2="125" y2="64" stroke="rgba(226,232,240,0.45)" stroke-width="4" stroke-linecap="round" />
+                  <text x="110" y="134" text-anchor="middle" fill="#fca5a5" font-size="8.5" font-weight="bold">CARA INTERIOR — HUELLA SILENCIOSA</text>
+                `}
+              </g>
+            </svg>
+          `;
+        }
+      },
+
+      temporizador_magnetico: {
+        name: "Cerradura Magnética con Temporizador de 15 Minutos",
+        description:
+          "Cerrojo electromagnético de seguridad de la Galería Real Aurum.\n\n" +
+          "• Registro digital: Activado a las 11:00 p.m. con bloqueo obligatorio de 15:00 minutos mientras se evacúa el gas halón.\n" +
+          "• Apertura: Se desbloqueó exactamente a las 11:15 p.m. cuando Damián abrió la compuerta.",
+        render360: (angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const scaleX = Math.cos(rad);
+          return `
+            <svg viewBox="0 0 220 180">
+              <g transform="translate(110,90) scale(${Math.abs(scaleX) < 0.2 ? 0.2 : Math.abs(scaleX)}, 1) translate(-110,-90)">
+                <rect x="56" y="42" width="108" height="96" rx="10" fill="#1e293b" stroke="#d4af37" stroke-width="2.5" />
+                <rect x="70" y="58" width="80" height="36" rx="4" fill="#040812" stroke="#dc2626" stroke-width="1.5" />
+                <text x="110" y="81" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="16" font-weight="bold">15:00</text>
+                <text x="110" y="114" text-anchor="middle" fill="#f3d06b" font-size="9" font-weight="bold">BLOQUEO: 23:00 → 23:15</text>
+              </g>
+            </svg>
+          `;
+        }
+      }
+    };
+
+    /* =========================================================================
+       PLACAS FOTOGRÁFICAS DE LA ESCENA DEL CRIMEN (Con objetos clicables)
+       ========================================================================= */
+    const SCENE_PHOTOS = [
+      {
+        title: "Placa #01 — Interior de la Bóveda Climatizada (11:16 p.m.)",
+        desc: "Fotografía tomada al abrirse la bóveda tras los 15 minutos de bloqueo. Haz clic en el cuerpo, el cuadro, el difusor de gas o la luminaria apagada.",
+        svg: `
+          <svg viewBox="0 0 760 360">
+            <defs>
+              <radialGradient id="vaultDark" cx="50%" cy="45%" r="65%">
+                <stop offset="0%" stop-color="#13223f"/>
+                <stop offset="100%" stop-color="#03060d"/>
+              </radialGradient>
+            </defs>
+            <rect width="760" height="360" fill="url(#vaultDark)" />
+            <!-- Paredes y suelo de mármol -->
+            <polygon points="0,255 150,210 610,210 760,255 760,360 0,360" fill="#08101f" stroke="#1e293b" stroke-width="1.5" />
+            <line x1="150" y1="20" x2="150" y2="210" stroke="#1e293b" stroke-width="2" />
+            <line x1="610" y1="20" x2="610" y2="210" stroke="#1e293b" stroke-width="2" />
+
+            <!-- OBJETO CLICABLE 1: Luminaria apagada -->
+            <g class="clickable-evidence" onclick="openObjectModal('luminaria_apagada')">
+              <line x1="380" y1="0" x2="380" y2="42" stroke="#d4af37" stroke-width="3" />
+              <path d="M 335 62 Q 380 35 425 62 Z" fill="#1e293b" stroke="#d4af37" stroke-width="1.5" />
+              <circle cx="380" cy="68" r="10" fill="#091224" stroke="#ef4444" stroke-width="1.5" />
+              <circle cx="380" cy="56" r="24" class="evidence-pulse-ring" />
+              <text x="380" y="92" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="bold">⚡ Luz Cortada (Sin emergencia)</text>
+            </g>
+
+            <!-- OBJETO CLICABLE 2: Difusor de Gas Halón -->
+            <g class="clickable-evidence" onclick="openObjectModal('difusor_gas')">
+              <rect x="520" y="28" width="66" height="24" rx="4" fill="#1e293b" stroke="#bae6fd" stroke-width="1.5" />
+              <path d="M 530 52 L 515 105 M 553 52 L 553 115 M 576 52 L 592 105" stroke="#bae6fd" stroke-width="2" stroke-dasharray="4,4" />
+              <circle cx="553" cy="42" r="24" class="evidence-pulse-ring" />
+              <text x="553" y="130" text-anchor="middle" fill="#bae6fd" font-size="11" font-weight="bold">❄️ Difusor Gas Halón</text>
+            </g>
+
+            <!-- OBJETO CLICABLE 3: Óleo 'La Dama del Velo' -->
+            <g class="clickable-evidence" onclick="openObjectModal('cuadro_dama')">
+              <rect x="195" y="75" width="96" height="112" rx="4" fill="#785312" stroke="#f3d06b" stroke-width="2.5" />
+              <rect x="205" y="85" width="76" height="92" fill="#0c162b" />
+              <circle cx="243" cy="116" r="14" fill="#e2c6a5" />
+              <path d="M 222 177 Q 243 136 264 177 Z" fill="#1d4ed8" />
+              <circle cx="243" cy="131" r="32" class="evidence-pulse-ring" />
+              <text x="243" y="203" text-anchor="middle" fill="#f3d06b" font-size="11" font-weight="bold">🖼️ 'La Dama del Velo'</text>
+            </g>
+
+            <!-- OBJETO CLICABLE 4: Cuerpo de Julián Mendoza -->
+            <g class="clickable-evidence" onclick="openObjectModal('cuerpo_julian')">
+              <ellipse cx="420" cy="306" rx="115" ry="18" fill="rgba(0,0,0,0.65)" />
+              <path d="M 325 292 Q 368 256 415 262 Q 468 266 512 295 Q 485 314 418 312 Q 355 310 325 292 Z"
+                    fill="#1e293b" stroke="#d4af37" stroke-width="2" />
+              <circle cx="348" cy="268" r="20" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" />
+              <circle cx="418" cy="285" r="38" class="evidence-pulse-ring" />
+              <text x="418" y="338" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="bold">⚰️ Cuerpo de Julián Mendoza (Clic para examinar)</text>
+            </g>
+          </svg>
+        `
+      },
+      {
+        title: "Placa #02 — Pasillo de Acceso y Panel Exterior del Gas",
+        desc: "Fotografía del pasillo exterior frente a la bóveda. Haz clic en el panel manual del gas o en el pañuelo de seda coral.",
+        svg: `
+          <svg viewBox="0 0 760 360">
+            <rect width="760" height="360" fill="#060c18" />
+            <polygon points="0,275 180,225 580,225 760,275 760,360 0,360" fill="#0b1528" stroke="#1e293b" stroke-width="1.5" />
+            <!-- Marco de puerta de bóveda -->
+            <rect x="255" y="45" width="250" height="185" fill="#091224" stroke="#d4af37" stroke-width="3" />
+            <text x="380" y="138" text-anchor="middle" fill="#8f9bb3" font-family="Cinzel, serif" font-size="16" font-weight="bold">BÓVEDA AURUM</text>
+
+            <!-- OBJETO CLICABLE 5: Panel Manual del Gas -->
+            <g class="clickable-evidence" onclick="openObjectModal('panel_gas')">
+              <rect x="545" y="112" width="68" height="92" rx="6" fill="#7f1d1d" stroke="#f3d06b" stroke-width="2" />
+              <rect x="562" y="128" width="34" height="36" fill="#040812" />
+              <rect x="574" y="144" width="10" height="20" fill="#e2e8f0" />
+              <circle cx="579" cy="158" r="24" class="evidence-pulse-ring" />
+              <text x="579" y="222" text-anchor="middle" fill="#fca5a5" font-size="11.5" font-weight="bold">🚨 Panel Manual (GAS ON)</text>
+            </g>
+
+            <!-- OBJETO CLICABLE 6: Pañuelo de Camila -->
+            <g class="clickable-evidence" onclick="openObjectModal('panuelo_camila')">
+              <path d="M 190 296 Q 230 282 268 298 Q 254 322 262 336 Q 222 326 186 336 Z"
+                    fill="#e11d48" stroke="#fda4af" stroke-width="1.8" />
+              <circle cx="228" cy="310" r="26" class="evidence-pulse-ring" />
+              <text x="228" y="352" text-anchor="middle" fill="#fda4af" font-size="11.5" font-weight="bold">🧣 Pañuelo de Seda Coral</text>
+            </g>
+          </svg>
+        `
+      },
+      {
+        title: "Placa #03 — Cristal Blindado y Cerradura Magnética",
+        desc: "Detalle técnico de la puerta hermética. Haz clic en el cristal blindado o en el temporizador magnético.",
+        svg: `
+          <svg viewBox="0 0 760 360">
+            <rect width="760" height="360" fill="#050a14" />
+            <!-- OBJETO CLICABLE 7: Cristal Blindado -->
+            <g class="clickable-evidence" onclick="openObjectModal('cristal_blindado')">
+              <rect x="135" y="42" width="270" height="265" rx="8" fill="#0c1e38" stroke="#d4af37" stroke-width="3" />
+              <rect x="152" y="58" width="236" height="232" fill="rgba(56, 189, 248, 0.12)" stroke="#38bdf8" stroke-width="1.5" />
+              <text x="270" y="152" text-anchor="middle" fill="#bae6fd" font-size="15" font-weight="bold">CRISTAL TRIPLE CAPA</text>
+              <text x="270" y="176" text-anchor="middle" fill="#f3d06b" font-size="14" font-weight="bold">100% INSONORIZADO</text>
+              <text x="270" y="200" text-anchor="middle" fill="#94a3b8" font-size="11">Cero transmisión acústica al exterior</text>
+              <circle cx="270" cy="174" r="42" class="evidence-pulse-ring" />
+            </g>
+
+            <!-- OBJETO CLICABLE 8: Temporizador Magnético -->
+            <g class="clickable-evidence" onclick="openObjectModal('temporizador_magnetico')">
+              <rect x="465" y="102" width="165" height="145" rx="10" fill="#1e293b" stroke="#d4af37" stroke-width="2.5" />
+              <rect x="488" y="126" width="118" height="52" rx="4" fill="#040812" stroke="#dc2626" stroke-width="1.5" />
+              <text x="547" y="160" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="24" font-weight="bold">15:00</text>
+              <text x="547" y="206" text-anchor="middle" fill="#f3d06b" font-size="11" font-weight="bold">BLOQUEO MAGNÉTICO</text>
+              <text x="547" y="224" text-anchor="middle" fill="#cbd5e1" font-size="10">23:00 → 23:15 hrs</text>
+              <circle cx="547" cy="174" r="36" class="evidence-pulse-ring" />
+            </g>
+          </svg>
+        `
+      }
+    ];
+
+    /* =========================================================================
+       DATOS DEL CASO II: GALERÍA REAL AURUM
+       ========================================================================= */
+    function getDynamicGreeting() {
+      const hour = new Date().getHours();
+      let saludoTiempo = "Buenas noches";
+      if (hour >= 5 && hour < 12) saludoTiempo = "Buenos días";
+      else if (hour >= 12 && hour < 19) saludoTiempo = "Buenas tardes";
+
+      const apodos = ["cielito", "amor", "cariño", "mi reina", "mi pastelito"];
+      const apodo = apodos[Math.floor(Math.random() * apodos.length)];
+      return { saludoTiempo, apodo };
+    }
+
+    function buildIntroMessages() {
+      const { saludoTiempo, apodo } = getDynamicGreeting();
+      return [
+        `¡${saludoTiempo}, ${apodo}! Qué alivio tenerte conmigo en esta noche de tormenta. Nos llamaron de urgencia de la Galería Real Aurum: durante una subasta privada a puerta cerrada, el tasador jefe Julián Mendoza fue hallado muerto dentro de la bóveda climatizada a las 11:15 p.m.`,
+        `Amor, el reporte forense y técnico de la bóveda es escalofriante:\nCausa de muerte: Asfixia por hipoxia tras activarse desde afuera el sistema de supresión de incendios con gas halón/nitrógeno.\n\n⚠️ LEYES FÍSICAS DE LA BÓVEDA:\n1. El cristal blindado de triple capa es 100% INSONORIZADO (ningún ruido o grito atraviesa hacia afuera).\n2. Al activarse el gas, la cerradura magnética se bloquea exactamente por 15 MINUTOS y se corta toda la electricidad interior (oscuridad total, NO tiene luz de emergencia interna).`,
+        `Además, cariño, seguridad confirmó que las cámaras del pasillo tuvieron un reinicio automático de mantenimiento entre las 10:55 p.m. y las 11:05 p.m. Nadie de afuera entró al palacio durante la tormenta.`,
+        `Mi reina, antes de que hables con ellos, este es el reporte preliminar de los 4 sospechosos:\n\n📌 CAMILA (Restauradora): La cámara la captó entrando al pasillo de la bóveda a las 10:50 p.m.\n📌 MATEO (Subastador): Afirma que no salió del salón principal en toda la noche.\n📌 ELENA (Condesa VIP): Afirma que bajó de la terraza al tocador a las 11:05 p.m.\n📌 DAMIÁN (Guardia Real): Estaba en monitores y abrió la bóveda a las 11:15 p.m. al expirar el bloqueo.`,
+        `Mi pastelito, no te he pasado sus números todavía para ir con calma. Pídemelos uno por uno abajo, o pídeme las fotos de la escena del crimen cuando quieras revisar el cuerpo y las evidencias alrededor.`
+      ];
+    }
+
+    const SUSPECTS_META = {
+      Camila: { role: "Restauradora jefe", mood: "A la defensiva", expression: "defensive", sinister: false },
+      Mateo: { role: "Socio subastador", mood: "Nervioso", expression: "nervous", sinister: false },
+      Elena: { role: "Condesa coleccionista", mood: "Fría y serena", expression: "confident", sinister: true },
+      Damián: { role: "Capitán de guardia", mood: "Sombrío", expression: "serious", sinister: false }
+    };
+
+    const INITIAL_MESSAGES = {
+      Camila: "Detective... estoy helada del miedo. Sé que las cámaras me grabaron en ese pasillo, pero yo no maté a Julián.",
+      Mateo: "Una velada maldita desde que empezó esta tormenta. Pregunte lo que deba, pero sea breve.",
+      Elena: "Qué tragedia tan macabra para nuestra galería... Dígame, detective, ¿en qué puedo asistirla?",
+      Damián: "Buenas noches, detective. Tengo los registros del sistema de seguridad listos para su revisión."
+    };
+
+    const QUESTIONS_BANK = {
+      Camila: [
+        {
+          q: "¿Qué hacías en el pasillo de la bóveda a las 10:50 p.m.?",
+          a: "Fui a revisar los sensores de humedad antes del cierre. Julián apareció, discutimos porque él insistía en entregar 'La Dama del Velo' al museo, y me encerré en mi taller a las 10:55 p.m.",
+          mood: "Agitada",
+          expression: "nervous",
+          sinister: true
+        },
+        {
+          q: "Hallamos tu pañuelo de seda coral junto al panel externo del gas.",
+          a: "¡Se me cayó cuando discutíamos en el pasillo! Yo no toqué esa palanca. Cuando volví a pasar a las 11:03 p.m. rumbo a recepción, la luz roja del gas ya estaba encendida.",
+          mood: "Acorralada",
+          expression: "defensive",
+          sinister: true
+        }
+      ],
+      Mateo: [
+        {
+          q: "¿Seguro que estuviste en el salón principal toda la noche?",
+          a: "Está bien, lo confieso: mentí en el reporte preliminar. A las 10:58 p.m. bajé al despacho de Julián para recuperar unos pagarés con los que iba a arruinarme.",
+          mood: "Culpable",
+          expression: "nervous",
+          sinister: true
+        },
+        {
+          q: "¿Viste algo al pasar frente a la bóveda a las 10:58 p.m.?",
+          a: "No entré, lo juro. Miré por el cristal blindado de la bóveda y lo vi iluminado por la luz de emergencia interna revisando el cuadro, así que seguí hacia su despacho.",
+          mood: "Confiado",
+          expression: "confident",
+          sinister: true
+        }
+      ],
+      Elena: [
+        {
+          q: "¿Qué viste cuando bajaste del área VIP a las 11:05 p.m.?",
+          a: "Iba hacia el tocador del piso inferior y pasé frente a la bóveda. Noté que la puerta blindada ya estaba sellada y el piloto rojo del sistema contra incendios estaba encendido.",
+          mood: "Tranquila",
+          expression: "neutral",
+          sinister: false
+        },
+        {
+          q: "¿Hiciste algo al ver la alerta roja en la puerta?",
+          a: "Me acerqué al cristal blindado; adentro estaba todo oscuro, pero escuché claramente a Julián golpeando el vidrio y gritando '¡Sáquenme de aquí!', así que corrí a avisar al guardia.",
+          mood: "Dramática",
+          expression: "serious",
+          sinister: true
+        }
+      ],
+      Damián: [
+        {
+          q: "¿Por qué tardaste hasta las 11:15 p.m. en abrir la bóveda?",
+          a: "La alerta de activación manual del gas saltó en mi consola a las 11:00 p.m. exactas. Por protocolo, el bloqueo magnético impide abrir la puerta durante 15 minutos hasta que se disipa el gas.",
+          mood: "Profesional",
+          expression: "serious",
+          sinister: false
+        },
+        {
+          q: "¿Por qué no hay grabaciones de quién pulsó el botón a las 11:00 p.m.?",
+          a: "Porque el servidor central tenía programado un reinicio automático de 10:55 a 11:05 p.m. Al volver la señal a las 11:05, la puerta ya estaba sellada.",
+          mood: "Serio",
+          expression: "neutral",
+          sinister: false
+        }
+      ]
+    };
+
+    /* =========================================================================
+       ESTADO GLOBAL DEL JUEGO
+       ========================================================================= */
+    const JHONATAN_NAME = "Jhonatan esposo mío 🕵️‍♂️";
+    let state = null;
+    let typewriterTimer = null;
+    let fullSpeechText = "";
+    let isTyping = false;
+
+    function initGameState() {
+      const introMessages = buildIntroMessages();
+      const suspectNames = Object.keys(SUSPECTS_META);
+
+      const chats = {
+        [JHONATAN_NAME]: [{ sender: JHONATAN_NAME, text: introMessages[0] }]
+      };
+      const questions = {};
+      const suspectMoods = {};
+      const suspectExpressions = {};
+      const suspectSinister = {};
+
+      suspectNames.forEach((name) => {
+        chats[name] = [{ sender: name, text: INITIAL_MESSAGES[name] }];
+        questions[name] = QUESTIONS_BANK[name].map((item) => ({ ...item }));
+        suspectMoods[name] = SUSPECTS_META[name].mood;
+        suspectExpressions[name] = SUSPECTS_META[name].expression;
+        suspectSinister[name] = SUSPECTS_META[name].sinister;
+      });
+
+      state = {
+        mensajesIntro: introMessages,
+        introIdx: 1,
+        photosUnlocked: false,
+        sospechososOcultos: [...suspectNames],
+        sospechososActivos: [],
+        descartados: [],
+        unread: {},
+        contactoActual: JHONATAN_NAME,
+        faseActual: "investigacion",
+        chats,
+        questions,
+        suspectMoods,
+        suspectExpressions,
+        suspectSinister
+      };
+
+      document.getElementById("btnScenePhotosTop").style.display = "none";
+    }
+
+    /* =========================================================================
+       MENÚ DE BIENVENIDA Y CONTROL DE INICIO
+       ========================================================================= */
+    function showWelcomeOverlay() {
+      document.getElementById("welcomeOverlay").classList.remove("hidden");
+    }
+
+    function startInvestigation() {
+      initWebAudio();
+      startRainLoop();
+      triggerLightningAndThunder();
+      scheduleRandomLightning();
+
+      initGameState();
+      document.getElementById("welcomeOverlay").classList.add("hidden");
+      renderContactsList();
+      loadChat(JHONATAN_NAME, true);
+    }
+
+    function resetGame() {
+      initGameState();
+      renderContactsList();
+      loadChat(JHONATAN_NAME, true);
+    }
+
+    /* =========================================================================
+       ESCENARIO VISUAL + CUADRO DE DIÁLOGO JUNTO A LA BOCA
+       ========================================================================= */
+    function updateCharacterStage(contacto, textToSpeak, animateEntrance = false) {
+      const box = document.getElementById("stageCharacterBox");
+      const bubble = document.getElementById("mouthSpeechBubble");
+      const speakerLabel = document.getElementById("speechSpeakerName");
+
+      const isJhonatan = contacto === JHONATAN_NAME;
+      const charKey = isJhonatan ? "Jhonatan" : contacto;
+      const expression = isJhonatan
+        ? (state.faseActual === "fin" ? "confident" : "neutral")
+        : (state.suspectExpressions[contacto] || "neutral");
+      const isSinister = !isJhonatan && state.suspectSinister[contacto];
+
+      box.innerHTML = getPortraitSVG(charKey, expression);
+      box.classList.toggle("aura-crimson", isSinister);
+
+      if (animateEntrance) {
+        box.classList.remove("entering");
+        void box.offsetWidth;
+        box.classList.add("entering");
+      }
+
+      bubble.classList.toggle("suspect-theme", !isJhonatan);
+      speakerLabel.textContent = isJhonatan ? "JHONATAN ESPOSO MÍO" : contacto.toUpperCase();
+
+      startTypewriter(textToSpeak);
+    }
+
+    function startTypewriter(text) {
+      if (typewriterTimer) clearInterval(typewriterTimer);
+      fullSpeechText = text;
+      isTyping = true;
+
+      const box = document.getElementById("stageCharacterBox");
+      const speechEl = document.getElementById("speechText");
+      const hintEl = document.getElementById("speechHint");
+
+      box.classList.add("is-speaking");
+      hintEl.textContent = "Hablando... (clic para acelerar)";
+      speechEl.innerHTML = '<span class="typing-cursor"></span>';
+
+      let idx = 0;
+      const speed = text.length > 230 ? 11 : 17;
+
+      typewriterTimer = setInterval(() => {
+        idx++;
+        if (idx % 4 === 0) playTypeTick();
+
+        speechEl.textContent = fullSpeechText.slice(0, idx);
+        const cursor = document.createElement("span");
+        cursor.className = "typing-cursor";
+        speechEl.appendChild(cursor);
+
+        const bubble = document.getElementById("mouthSpeechBubble");
+        bubble.scrollTop = bubble.scrollHeight;
+
+        if (idx >= fullSpeechText.length) {
+          finishTypewriterNow();
+        }
+      }, speed);
+    }
+
+    function finishTypewriterNow() {
+      if (!isTyping) return;
+      if (typewriterTimer) clearInterval(typewriterTimer);
+      isTyping = false;
+
+      const box = document.getElementById("stageCharacterBox");
+      const speechEl = document.getElementById("speechText");
+      const hintEl = document.getElementById("speechHint");
+
+      box.classList.remove("is-speaking");
+      speechEl.textContent = fullSpeechText;
+      hintEl.textContent = "Toca cualquier mensaje para repetirlo";
+    }
+
+    /* =========================================================================
+       BARRA IZQUIERDA DE CONTACTOS
+       ========================================================================= */
+    function renderContactsList() {
+      const list = document.getElementById("contactsList");
+      list.innerHTML = "";
+
+      const contacts = [JHONATAN_NAME, ...state.sospechososActivos];
+      document.getElementById("contactsCounter").textContent =
+        `${contacts.length} activo${contacts.length > 1 ? "s" : ""}`;
+
+      contacts.forEach((contact) => {
+        const isJhonatan = contact === JHONATAN_NAME;
+        const charKey = isJhonatan ? "Jhonatan" : contact;
+        const expression = isJhonatan ? "neutral" : (state.suspectExpressions[contact] || "neutral");
+        const roleText = isJhonatan ? "Compañero de investigación" : SUSPECTS_META[contact].role;
+
+        const btn = document.createElement("button");
+        btn.className = "contact-btn" + (state.contactoActual === contact ? " active" : "");
+        btn.onclick = () => loadChat(contact, true);
+
+        btn.innerHTML = `
+          <div class="contact-mini-avatar">${getPortraitSVG(charKey, expression)}</div>
+          <div class="contact-info">
+            <div class="contact-name">${contact}</div>
+            <div class="contact-role">${roleText}</div>
+          </div>
+          ${state.unread[contact] ? '<span class="unread-dot"></span>' : ''}
+        `;
+        list.appendChild(btn);
+      });
+
+      const statusEl = document.getElementById("sidebarStatus");
+      if (state.faseActual === "fin") {
+        statusEl.textContent = "Caso finalizado. Puedes reiniciar arriba cuando gustes, mi reina.";
+      } else if (state.introIdx < state.mensajesIntro.length) {
+        statusEl.textContent = "Pulsa 'Continuar historia...' para recibir el reporte completo.";
+      } else {
+        statusEl.textContent = `Activos: ${state.sospechososActivos.length} · Por pedir: ${state.sospechososOcultos.length} · Descartados: ${state.descartados.length}`;
+      }
+    }
+
+    /* =========================================================================
+       RENDERIZADO DEL CHAT
+       ========================================================================= */
+    function loadChat(contacto, animateCharacter = false) {
+      if (["descarte_espera", "acusacion_espera", "pedir_espera"].includes(state.faseActual)) {
+        state.faseActual = "investigacion";
+      }
+
+      state.contactoActual = contacto;
+      state.unread[contacto] = false;
+
+      const isJhonatan = contacto === JHONATAN_NAME;
+      document.getElementById("headerName").textContent = contacto;
+      document.getElementById("headerRole").textContent = isJhonatan
+        ? "Compañero de investigación"
+        : SUSPECTS_META[contacto].role;
+
+      const moodEl = document.getElementById("headerMood");
+      if (isJhonatan) {
+        moodEl.textContent = state.faseActual === "fin" ? "Caso cerrado" : "Enlace activo";
+        moodEl.classList.remove("sinister");
+      } else {
+        moodEl.textContent = `Actitud: ${state.suspectMoods[contacto]}`;
+        moodEl.classList.toggle("sinister", !!state.suspectSinister[contacto]);
+      }
+
+      renderContactsList();
+
+      const area = document.getElementById("messagesArea");
+      area.innerHTML = "";
+
+      const history = state.chats[contacto];
+      let lastCharacterLine = "";
+
+      history.forEach((msg) => {
+        const row = document.createElement("div");
+        const isAlejandra = msg.sender === "Alejandra";
+        row.className = "msg-row " + (isAlejandra ? "right" : "left");
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble " + (isAlejandra ? "right" : "left");
+
+        if (isAlejandra) {
+          bubble.textContent = msg.text;
+        } else {
+          lastCharacterLine = msg.text;
+          const senderColor = msg.sender === JHONATAN_NAME ? "#f3d06b" : "#fca5a5";
+          bubble.innerHTML = `
+            <div class="bubble-sender" style="color:${senderColor}">
+              <span>${msg.sender}</span>
+              <span class="replay-chip">🔊 repetir</span>
+            </div>
+            <div></div>
+          `;
+          bubble.lastElementChild.textContent = msg.text;
+          bubble.onclick = () => updateCharacterStage(contacto, msg.text, false);
+
+          /* Si este mensaje contiene la galería de fotos de la escena del crimen */
+          if (msg.hasPhotos) {
+            const gallery = document.createElement("div");
+            gallery.className = "evidence-gallery-msg";
+            gallery.onclick = (e) => e.stopPropagation();
+
+            SCENE_PHOTOS.forEach((photo, idx) => {
+              const card = document.createElement("div");
+              card.className = "photo-thumb-card";
+              card.onclick = () => openScenePhotosModal(idx);
+              card.innerHTML = `
+                <div class="photo-thumb-svg">${photo.svg}</div>
+                <div class="photo-thumb-caption">🔍 Placa #0${idx + 1}</div>
+              `;
+              gallery.appendChild(card);
+            });
+            bubble.appendChild(gallery);
+          }
+        }
+
+        row.appendChild(bubble);
+        area.appendChild(row);
+      });
+
+      area.scrollTop = area.scrollHeight;
+
+      if (lastCharacterLine) {
+        updateCharacterStage(contacto, lastCharacterLine, animateCharacter);
+      }
+
+      renderButtons();
+    }
+
+    /* =========================================================================
+       BOTONES DE ACCIÓN E INTERROGATORIO
+       ========================================================================= */
+    function renderButtons() {
+      const container = document.getElementById("interactionArea");
+      container.innerHTML = "";
+
+      if (state.faseActual === "fin") {
+        const row = document.createElement("div");
+        row.className = "buttons-row";
+        row.appendChild(createBtn("Jugar de nuevo este caso", resetGame, "btn-gold center"));
+        container.appendChild(row);
+        return;
+      }
+
+      if (state.contactoActual === JHONATAN_NAME) {
+        if (state.faseActual === "investigacion") {
+          if (state.introIdx < state.mensajesIntro.length) {
+            const grid = document.createElement("div");
+            grid.className = "buttons-grid";
+            grid.appendChild(createBtn("Continuar historia...", avanzarIntro, "btn-green center"));
+            container.appendChild(grid);
+          } else {
+            const lbl = document.createElement("div");
+            lbl.className = "interaction-label";
+            lbl.textContent = "Opciones de investigación con Jhonatan esposo mío:";
+            container.appendChild(lbl);
+
+            const row = document.createElement("div");
+            row.className = "buttons-row";
+
+            if (!state.photosUnlocked) {
+              row.appendChild(createBtn("📷 Pedir fotos de la escena", pedirFotosEscena, "btn-gold center"));
+            } else {
+              row.appendChild(createBtn("📷 Ver fotos de la escena", () => openScenePhotosModal(0), "btn-gold center"));
+            }
+
+            if (state.sospechososOcultos.length > 0) {
+              row.appendChild(createBtn("Pedir contacto", iniciarPedirContacto, "btn-blue center"));
+            }
+            if (state.sospechososActivos.length > 0) {
+              row.appendChild(createBtn("Descartar Inocente", iniciarDescarte, "btn-orange center"));
+              row.appendChild(createBtn("¡Acusar Asesino!", iniciarAcusacion, "btn-red center"));
+            }
+            container.appendChild(row);
+          }
+        } else if (state.faseActual === "pedir_espera") {
+          const lbl = document.createElement("div");
+          lbl.className = "interaction-label";
+          lbl.textContent = "¿De qué sospechoso quieres pedirle el número a Jhonatan?";
+          container.appendChild(lbl);
+
+          const row = document.createElement("div");
+          row.className = "buttons-row";
+          state.sospechososOcultos.forEach((s) => {
+            row.appendChild(createBtn(`Pedir número de ${s}`, () => procesarPedirContacto(s), "btn-blue center"));
+          });
+          row.appendChild(createBtn("Cancelar", cancelarAccion, "btn-cancel center"));
+          container.appendChild(row);
+
+        } else if (state.faseActual === "descarte_espera") {
+          const lbl = document.createElement("div");
+          lbl.className = "interaction-label";
+          lbl.textContent = "Elige a quién consideras INOCENTE para dejarlo ir (¡cuidado, cariño!):";
+          container.appendChild(lbl);
+
+          const row = document.createElement("div");
+          row.className = "buttons-row";
+          state.sospechososActivos.forEach((s) => {
+            row.appendChild(createBtn(`Descartar a ${s}`, () => procesarDescarte(s), "btn-orange center"));
+          });
+          row.appendChild(createBtn("Cancelar", cancelarAccion, "btn-cancel center"));
+          container.appendChild(row);
+
+        } else if (state.faseActual === "acusacion_espera") {
+          const lbl = document.createElement("div");
+          lbl.className = "interaction-label";
+          lbl.textContent = "Decisión final — ¿Quién es el verdadero asesino?";
+          container.appendChild(lbl);
+
+          const row = document.createElement("div");
+          row.className = "buttons-row";
+          state.sospechososActivos.forEach((s) => {
+            row.appendChild(createBtn(`¡Acusar a ${s}!`, () => resolverCaso(s), "btn-red center"));
+          });
+          row.appendChild(createBtn("Cancelar", cancelarAccion, "btn-cancel center"));
+          container.appendChild(row);
+        }
+      } else if (state.sospechososActivos.includes(state.contactoActual)) {
+        const pendientes = state.questions[state.contactoActual] || [];
+        if (pendientes.length === 0) {
+          const p = document.createElement("div");
+          p.className = "no-actions-text";
+          p.textContent = "No tienes más preguntas para este sospechoso. Regresa con Jhonatan esposo mío para continuar.";
+          container.appendChild(p);
+        } else {
+          const lbl = document.createElement("div");
+          lbl.className = "interaction-label";
+          lbl.textContent = `Preguntas disponibles para ${state.contactoActual}:`;
+          container.appendChild(lbl);
+
+          const grid = document.createElement("div");
+          grid.className = "buttons-grid";
+          pendientes.forEach((item) => {
+            grid.appendChild(createBtn(item.q, () => hacerPregunta(state.contactoActual, item), "btn-question"));
+          });
+          container.appendChild(grid);
+        }
+      }
+    }
+
+    function createBtn(text, onClick, className) {
+      const btn = document.createElement("button");
+      btn.className = "action-btn " + className;
+      btn.textContent = text;
+      btn.onclick = onClick;
+      return btn;
+    }
+
+    /* =========================================================================
+       ACCIONES DE LA INVESTIGACIÓN
+       ========================================================================= */
+    function avanzarIntro() {
+      state.chats[JHONATAN_NAME].push({ sender: "Alejandra", text: "Sigue contándome..." });
+      state.chats[JHONATAN_NAME].push({ sender: JHONATAN_NAME, text: state.mensajesIntro[state.introIdx] });
+      state.introIdx++;
+      loadChat(JHONATAN_NAME, false);
+    }
+
+    function pedirFotosEscena() {
+      state.photosUnlocked = true;
+      const topBtn = document.getElementById("btnScenePhotosTop");
+      topBtn.style.display = "inline-block";
+      topBtn.classList.add("evidence-ready");
+
+      triggerLightningAndThunder();
+
+      state.chats[JHONATAN_NAME].push({
+        sender: "Alejandra",
+        text: "Amor, mándame las fotos de la escena del crimen para ver el cuerpo y las evidencias alrededor."
+      });
+      state.chats[JHONATAN_NAME].push({
+        sender: JHONATAN_NAME,
+        text: "Aquí tienes las 3 placas forenses de la bóveda y el pasillo, mi reina. Toca cualquiera para ampliarla y haz clic sobre el cuerpo o los objetos para girarlos 360° y leer cada detalle.",
+        hasPhotos: true
+      });
+
+      loadChat(JHONATAN_NAME, false);
+    }
+
+    function iniciarPedirContacto() {
+      state.faseActual = "pedir_espera";
+      renderButtons();
+    }
+
+    function procesarPedirContacto(sospechoso) {
+      state.sospechososOcultos = state.sospechososOcultos.filter((s) => s !== sospechoso);
+      state.sospechososActivos.push(sospechoso);
+      state.unread[sospechoso] = true;
+
+      state.chats[JHONATAN_NAME].push({
+        sender: "Alejandra",
+        text: `Amor, pásame el número de ${sospechoso} por favor.`
+      });
+      state.chats[JHONATAN_NAME].push({
+        sender: JHONATAN_NAME,
+        text: `Claro que sí, cielito. Acabo de agregar el contacto de ${sospechoso} a tu barra de la izquierda. ¡Ten mucho cuidado con lo que te dice!`
+      });
+
+      state.faseActual = "investigacion";
+      renderContactsList();
+      loadChat(JHONATAN_NAME, false);
+    }
+
+    function hacerPregunta(contacto, item) {
+      state.chats[contacto].push({ sender: "Alejandra", text: item.q });
+      state.chats[contacto].push({ sender: contacto, text: item.a });
+
+      if (item.mood) state.suspectMoods[contacto] = item.mood;
+      if (item.expression) state.suspectExpressions[contacto] = item.expression;
+      if (typeof item.sinister === "boolean") state.suspectSinister[contacto] = item.sinister;
+
+      state.questions[contacto] = state.questions[contacto].filter((qObj) => qObj.q !== item.q);
+      loadChat(contacto, false);
+    }
+
+    function iniciarDescarte() {
+      state.faseActual = "descarte_espera";
+      renderButtons();
+    }
+
+    function iniciarAcusacion() {
+      state.faseActual = "acusacion_espera";
+      renderButtons();
+    }
+
+    function cancelarAccion() {
+      state.faseActual = "investigacion";
+      renderButtons();
+    }
+
+    function procesarDescarte(sospechoso) {
+            
+        state.descartados.push(sospechoso);
+        state.sospechososActivos = state.sospechososActivos.filter((s) => s !== sospechoso);
+
+        state.chats[JHONATAN_NAME].push({
+            sender: "Alejandra",
+            text: `Dejemos ir a ${sospechoso}, confío en su inocencia.`
+        });
+
+        const totalSospechosos = Object.keys(SUSPECTS_META);
+
+        // Si ya descartó a 3 personas, solo queda 1 sospechoso y el caso termina por descarte
+        if (state.descartados.length >= totalSospechosos.length - 1) {
+            const ultimoSospechoso = totalSospechosos.find((s) => !state.descartados.includes(s));
+            triggerLightningAndThunder();
+
+            let msgFinal = "";
+            if (ultimoSospechoso === "Elena") {
+            msgFinal = `¡CASO RESUELTO POR DESCARTE! 🎉\n\n¡Brillante, mi reina! Descartaste a todos los inocentes y dejaste acorralada a Elena.\n\nElla se delató sola: afirmó haber escuchado a Julián gritar y golpear el vidrio a las 11:05 p.m., pero el cristal blindado es 100% insonorizado. ¡La atrapamos antes de que huyera con 'La Dama del Velo'!`;
+            } else {
+            msgFinal = `CASO FALLIDO. ❌\n\nCariño, al descartar a los demás dejaste como único sospechoso a ${ultimoSospechoso}, pero es completamente inocente... Dejaste escapar al verdadero culpable durante la investigación.\n\n💡 Pista: Revisa las leyes físicas de la bóveda en el reporte técnico y compáralas con lo que cada sospechoso afirmó haber percibido a través del cristal.`;
+            }
+
+            state.chats[JHONATAN_NAME].push({ sender: JHONATAN_NAME, text: msgFinal });
+            state.faseActual = "fin";
+            renderContactsList();
+            loadChat(JHONATAN_NAME, false);
+            return;
+        }
+
+        // Si aún quedan más sospechosos, el juego continúa normalmente (incluso si sacó al asesino)
+        state.chats[JHONATAN_NAME].push({
+            sender: JHONATAN_NAME,
+            text: `Entendido, cariño. He escoltado a ${sospechoso} fuera de la galería. Ya no está en la lista de contactos.\n\n¿Qué hacemos ahora, mi pastelito? Puedes pedir otro contacto, revisar las fotos, seguir descartando o acusar.`
+        });
+
+        state.faseActual = "investigacion";
+        renderContactsList();
+        loadChat(JHONATAN_NAME, false);
+        }
+
+    function resolverCaso(acusado) {
+        triggerLightningAndThunder();
+
+        state.chats[JHONATAN_NAME].push({
+            sender: "Alejandra",
+            text: `¡Lo tengo, amor! El asesino es ${acusado}.`
+        });
+
+        let msg = "";
+        if (acusado === "Elena" && !state.descartados.includes("Elena")) {
+            msg = `¡CASO RESUELTO! 🎉\n\n¡Eres extraordinaria, mi reina! Elena se delató sola: afirmó haber escuchado a Julián gritar y golpear el vidrio a las 11:05 p.m., pero el cristal blindado es 100% insonorizado (y el gas provoca hipoxia en segundos).\n\nMateo también mintió diciendo que lo vio por la "luz de emergencia interna" (inexistente) solo para ocultar que bajó a robar sus pagarés. ¡Atrapamos a Elena antes de que escapara con 'La Dama del Velo'!`;
+        } else if (state.descartados.includes("Elena")) {
+            msg = `CASO FALLIDO. ❌\n\nAmor, acusaste a ${acusado}, pero es inocente... El verdadero culpable estaba entre las personas que dejaste ir durante la investigación.\n\n💡 Pista: No todos los que mienten mataron a Julián; algunos solo ocultaban deudas o discusiones. Fíjate bien en quién afirmó percibir algo físicamente imposible según las características del cristal blindado.`;
+        } else {
+            msg = `CASO FALLIDO. ❌\n\nMi vida, acusaste a ${acusado}, pero las pruebas forenses demuestran que no fue quien activó el gas.\n\n💡 Pista: Vuelve a leer las reglas técnicas de la bóveda sobre el sonido y la iluminación, y busca qué testimonio contradice directamente la física de esa habitación.`;
+        }
+
+        state.chats[JHONATAN_NAME].push({ sender: JHONATAN_NAME, text: msg });
+        state.faseActual = "fin";
+        loadChat(JHONATAN_NAME, false);
+        }
+
+    /* =========================================================================
+       VISOR DE FOTOS DE ESCENA + VISOR INTERACTIVO 360° DE OBJETOS
+       ========================================================================= */
+    let currentPhotoIdx = 0;
+    let currentObjectId = null;
+    let currentAngle = 0;
+    let isDragging360 = false;
+    let dragStartX = 0;
+    let autoSpinInterval = null;
+
+    function openScenePhotosModal(idx = 0) {
+      document.getElementById("scenePhotosModal").classList.add("open");
+      selectScenePhoto(idx);
+    }
+
+    function closeScenePhotosModal() {
+      document.getElementById("scenePhotosModal").classList.remove("open");
+    }
+
+    function selectScenePhoto(idx) {
+      currentPhotoIdx = idx;
+      const photo = SCENE_PHOTOS[idx];
+
+      document.getElementById("modalPhotoTitle").textContent = `📷 ${photo.title}`;
+      document.getElementById("scenePhotoFrame").innerHTML = photo.svg;
+      document.getElementById("scenePhotoDesc").textContent = photo.desc;
+
+      [0, 1, 2].forEach((i) => {
+        document.getElementById(`photoTab${i}`).classList.toggle("active", i === idx);
+      });
+    }
+
+    function openObjectModal(objectId) {
+      const obj = EVIDENCE_OBJECTS[objectId];
+      if (!obj) return;
+
+      currentObjectId = objectId;
+      currentAngle = 0;
+      stopAutoSpin();
+
+      document.getElementById("objectModalTitle").textContent = obj.name;
+      document.getElementById("objectModalDesc").textContent = obj.description;
+      document.getElementById("objectInspectModal").classList.add("open");
+
+      renderObject360View();
+    }
+
+    function closeObjectModal() {
+      stopAutoSpin();
+      document.getElementById("objectInspectModal").classList.remove("open");
+    }
+
+    function setObjectAngle(deg) {
+      stopAutoSpin();
+      currentAngle = ((deg % 360) + 360) % 360;
+      renderObject360View();
+    }
+
+    function renderObject360View() {
+      if (!currentObjectId) return;
+      const obj = EVIDENCE_OBJECTS[currentObjectId];
+      const deg = Math.round(((currentAngle % 360) + 360) % 360);
+
+      let sideName = "Frente";
+      if (deg >= 45 && deg < 135) sideName = "Perfil Der.";
+      else if (deg >= 135 && deg < 225) sideName = "Reverso";
+      else if (deg >= 225 && deg < 315) sideName = "Perfil Izq.";
+
+      document.getElementById("objectAngleLabel").textContent = `Vista: ${sideName} (${deg}°)`;
+      document.getElementById("object360Render").innerHTML = obj.render360(deg);
+
+      [0, 90, 180, 270].forEach((preset) => {
+        const btn = document.getElementById(`angBtn${preset}`);
+        if (btn) btn.classList.toggle("active", Math.abs(deg - preset) < 15);
+      });
+    }
+
+    function toggleAutoSpin() {
+      const btn = document.getElementById("angBtnAuto");
+      if (autoSpinInterval) {
+        stopAutoSpin();
+      } else {
+        btn.classList.add("active");
+        autoSpinInterval = setInterval(() => {
+          currentAngle = (currentAngle + 4) % 360;
+          renderObject360View();
+        }, 40);
+      }
+    }
+
+    function stopAutoSpin() {
+      if (autoSpinInterval) {
+        clearInterval(autoSpinInterval);
+        autoSpinInterval = null;
+      }
+      const btn = document.getElementById("angBtnAuto");
+      if (btn) btn.classList.remove("active");
+    }
+
+    /* Eventos de arrastre horizontal (ratón y táctil) para girar 360° */
+    const stage360 = document.getElementById("object360Stage");
+    stage360.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button")) return;
+      stopAutoSpin();
+      isDragging360 = true;
+      dragStartX = e.clientX;
+      stage360.setPointerCapture(e.pointerId);
+    });
+
+    stage360.addEventListener("pointermove", (e) => {
+      if (!isDragging360) return;
+      const deltaX = e.clientX - dragStartX;
+      dragStartX = e.clientX;
+      currentAngle = (currentAngle + deltaX * 1.15 + 360) % 360;
+      renderObject360View();
+    });
+
+    stage360.addEventListener("pointerup", () => { isDragging360 = false; });
+    stage360.addEventListener("pointercancel", () => { isDragging360 = false; });
+
+    /* =========================================================================
+       INICIALIZACIÓN
+       ========================================================================= */
+    initGameState();
+  </script>
+</body>
+</html>
